@@ -1,6 +1,6 @@
-# ZOS-semestralka
+# UPS-semestralka
 
-Semestrální práce na KIV/ZOS na téma 'Dots and Boxes'
+Semestrální práce na KIV/UPS na téma 'Dots and Boxes'
 
 ## Server
 Server bude napsán v jazyce C.
