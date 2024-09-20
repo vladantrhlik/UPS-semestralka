@@ -11,12 +11,9 @@ class GameView:
         self.dot_radius = 7
         self.stick_width = 4
 
-        '''
-        # set window resizeable
-        set_config_flags(FLAG_WINDOW_RESIZABLE)
-        # aliasing
-        set_config_flags(FLAG_MSAA_4X_HINT)
-        '''
+        self.tile = -1
+        self.off_x, self.off_y = 0, 0
+
     def draw_circle(self, surface, x, y, radius, color):
         gfxdraw.aacircle(surface, x, y, radius, color)
         gfxdraw.filled_circle(surface, x, y, radius, color)
@@ -29,10 +26,10 @@ class GameView:
 
         tile = min(w / self.game_data.w - 2 * padding, 
                         h / self.game_data.h - 2 * padding)
-        tile = int(tile)
+        self.tile = int(tile)
 
-        off_x = int((w - self.game_data.w * tile) / 2)
-        off_y = int((h - self.game_data.w * tile) / 2)
+        self.off_x = int((w - self.game_data.w * self.tile) / 2)
+        self.off_y = int((h - self.game_data.w * self.tile) / 2)
 
         # draw sticks
         for y in range(len(self.game_data.stick_data)):
@@ -44,19 +41,19 @@ class GameView:
                 if y % 2 == 0:
                     # horizontal
                     pg.draw.line(screen, col,
-                                 (off_x + x * tile, off_y + (y // 2) * tile),
-                                 (off_x + (x+1) * tile, off_y + (y // 2) * tile),
+                                 (self.off_x + x * self.tile, self.off_y + (y // 2) * self.tile),
+                                 (self.off_x + (x+1) * self.tile, self.off_y + (y // 2) * self.tile),
                                  width = self.stick_width)
                 else:
                     # vertical
                     pg.draw.line(screen, col,
-                                 (off_x + x * tile, off_y + (y // 2) * tile),
-                                 (off_x + x * tile, off_y + (y // 2 + 1) * tile),
+                                 (self.off_x + x * self.tile, self.off_y + (y // 2) * self.tile),
+                                 (self.off_x + x * self.tile, self.off_y + (y // 2 + 1) * self.tile),
                                  width = self.stick_width)
 
         # draw dots
         for y in range(self.game_data.h + 1):
             for x in range(self.game_data.w + 1):
                 # pg.draw.circle(screen, (0,0,0),
-                #            (off_x + x * tile, off_y + y * tile), self.dot_radius)
-                self.draw_circle(screen, off_x + x * tile, off_y + y * tile, self.dot_radius, Col.DOT)
+                #            (self.off_x + x * self.tile, self.off_y + y * self.tile), self.dot_radius)
+                self.draw_circle(screen, self.off_x + x * self.tile, self.off_y + y * self.tile, self.dot_radius, Col.DOT)
