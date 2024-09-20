@@ -1,6 +1,7 @@
-from pyray import *
+import pygame as pg
 from game_data import GameData, Player
 from game_view import GameView
+from colors import Col
 
 
 gd = GameData(3, 3)
@@ -11,15 +12,20 @@ gd.set_stick(3, 1, Player.ME)
 
 gv = GameView(gd)
 
+pg.init()
+screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
 
-init_window(600, 600, "Dots and Boxes")
+# Run until the user asks to quit
+running = True
+while running:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
 
-while not window_should_close():
-    begin_drawing()
-    
-    clear_background(WHITE)
-    gv.draw()
+    # Fill the background with white
+    screen.fill(Col.BACKGROUND)
+    gv.draw(screen)
+    pg.display.flip()
 
-    end_drawing()
-close_window()
-
+# Done! Time to quit.
+pg.quit()
