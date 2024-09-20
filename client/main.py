@@ -3,16 +3,19 @@ from game_data import GameData, Player
 from game_view import GameView
 from colors import Col
 from login import *
+from scene import SceneManager
 
 pg.init()
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
 clock = pg.time.Clock()
 
 # start game with login screen
-curr_scene: Scene = LoginScene({})
+sm = SceneManager()
+sm.set_scene(LoginScene({}))
 
 running = True
 while running:
+    curr_scene = sm.scene
     delta_time = clock.tick(60)/1000.0
 
     # process all events

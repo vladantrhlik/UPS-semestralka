@@ -37,3 +37,5 @@ class LoginScene(Scene):
         self.user_data["uname"] = uname
         # TODO: validate username
         print(uname)
+        # TODO: switch to lobby scene
+        self.sm.set_scene(LoginScene({}))
