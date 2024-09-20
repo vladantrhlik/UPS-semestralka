@@ -2,7 +2,7 @@ import pygame as pg
 from game_data import GameData, Player
 from game_view import GameView
 from colors import Col
-from scenes import Scene, LoginScene
+from login import *
 
 pg.init()
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
