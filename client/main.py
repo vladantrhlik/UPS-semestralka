@@ -19,6 +19,7 @@ while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
+
         curr_scene.process_event(event)
 
     # update current scene
