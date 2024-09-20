@@ -30,6 +30,3 @@ class GameData:
             print(f"error: invalid stick coordinates [{x}, {y}]")
             return
         self.stick_data[y][x] = val
-
-
-
