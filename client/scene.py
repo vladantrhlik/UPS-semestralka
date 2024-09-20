@@ -29,9 +29,11 @@ class LoginScene(Scene):
         # username textbox
         uname_box_rect = pg.Rect(0, -10, 150, 30)
         self.uname_box = pgui.elements.UITextEntryLine(relative_rect=uname_box_rect,
-                                                manager=self.ui_manager,
-                                                container = self.ui_container,
-                                                anchors={'center': 'center'})
+                                            manager=self.ui_manager,
+                                            container = self.ui_container,
+                                            anchors={'center': 'center'})
+        # restrict input characters
+        self.uname_box.set_allowed_characters('alpha_numeric')
 
     def process_event(self, event):
         super().process_event(event)
@@ -46,4 +48,5 @@ class LoginScene(Scene):
                 self.login()
 
     def login(self):
-        print(self.uname_box.get_text())
+        uname = self.uname_box.get_text()
+        self.user_data["uname"] = uname
