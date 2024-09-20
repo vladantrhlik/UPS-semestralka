@@ -6,6 +6,7 @@ class Scene:
         self.user_data = user_data
         self.ui_manager = pgui.UIManager(pg.display.get_window_size())
         self.ui_container = pgui.core.UIContainer(pg.Rect(0, 0, *pg.display.get_window_size()), manager=self.ui_manager)
+        self.sm: SceneManager = None
 
     def update(self, delta_time):
         self.ui_manager.update(delta_time)
@@ -19,5 +20,9 @@ class Scene:
         self.ui_manager.draw_ui(screen)
 
 class SceneManager:
-    pass 
-    # TODO
+    def __init__(self):
+        self.scene = None
+
+    def set_scene(self, scene: Scene):
+        self.scene = scene
+        self.scene.sm = self
