@@ -35,4 +35,5 @@ class LoginScene(Scene):
     def login(self):
         uname = self.uname_box.get_text()
         self.user_data["uname"] = uname
+        # TODO: validate username
         print(uname)
