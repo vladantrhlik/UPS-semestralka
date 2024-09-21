@@ -1,6 +1,7 @@
 import pygame as pg
 import pygame_gui as pgui
 from scene import Scene
+from lobby import LobbyScene
 
 class LoginScene(Scene):
     def __init__(self, ud):
@@ -38,4 +39,4 @@ class LoginScene(Scene):
         # TODO: validate username
         print(uname)
         # TODO: switch to lobby scene
-        self.sm.set_scene(LoginScene({}))
+        self.sm.set_scene(LobbyScene(self.user_data))
