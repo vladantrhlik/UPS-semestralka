@@ -25,6 +25,7 @@ class Scene:
         self.ui_manager.draw_ui(screen)
 
     def error(self, title="Error", msg="Message"):
+        if self.err_popup != None: return
         self.ui_container.disable()
         popup_rect = pg.Rect(0,0,300, 150)
         self.err_popup = pgui.windows.UIMessageWindow(rect= popup_rect,

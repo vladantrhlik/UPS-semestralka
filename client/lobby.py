@@ -1,6 +1,7 @@
 import pygame as pg
 import pygame_gui as pgui
 from scene import Scene
+from game import GameScene
 
 class LobbyScene(Scene):
     def __init__(self, ud):
@@ -28,4 +29,14 @@ class LobbyScene(Scene):
         self.lobbies = {"martin": 0, "owo": 2, "lobby2": 4, "totoJeDlouhyNazevLobby": 5}
         for i in range(ord('a'), ord('z')+1):
             self.lobbies[chr(i)] = 42
+
+    def process_event(self, event):
+        super().process_event(event)
+        # connect button press
+        if event.type == pgui.UI_BUTTON_PRESSED:
+            if event.ui_element == self.conn_but:
+                self.connect()
+
+    def connect(self):
+        self.sm.set_scene(GameScene(self.user_data))
 
