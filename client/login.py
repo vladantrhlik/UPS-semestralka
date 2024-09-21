@@ -21,6 +21,9 @@ class LoginScene(Scene):
         # restrict input characters
         self.uname_box.set_allowed_characters('alpha_numeric')
 
+        self.err_popup = None
+
+
     def process_event(self, event):
         super().process_event(event)
         # login button press
@@ -35,8 +38,11 @@ class LoginScene(Scene):
 
     def login(self):
         uname = self.uname_box.get_text()
-        self.user_data["uname"] = uname
-        # TODO: validate username
-        print(uname)
-        # TODO: switch to lobby scene
-        self.sm.set_scene(LobbyScene(self.user_data))
+        # validate uname (length between 3 and 32, only alpha numeric)
+        if 3 <= len(uname) <= 32:
+            self.user_data["uname"] = uname
+            self.sm.set_scene(LobbyScene(self.user_data))
+        else:
+            self.ui_container.disable()
+            msg = "Length of username must be between 3 and 32"
+            self.error(msg=msg, title="Login error")
