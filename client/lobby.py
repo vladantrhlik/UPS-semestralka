@@ -26,6 +26,7 @@ class LobbyScene(Scene):
 
     def fetch(self):
         # TODO: fetch all available lobbies
+        # run every X seconds / refresh button (?)
         self.lobbies = {"martin": 0, "owo": 2, "lobby2": 4, "totoJeDlouhyNazevLobby": 5}
         for i in range(ord('a'), ord('z')+1):
             self.lobbies[chr(i)] = 42
@@ -35,8 +36,10 @@ class LobbyScene(Scene):
         # connect button press
         if event.type == pgui.UI_BUTTON_PRESSED:
             if event.ui_element == self.conn_but:
+                # TODO: only when game is selected
                 self.connect()
 
     def connect(self):
+        # TODO: check if room still exists
         self.sm.set_scene(GameScene(self.user_data))
 

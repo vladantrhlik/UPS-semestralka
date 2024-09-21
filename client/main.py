@@ -4,6 +4,7 @@ from game_view import GameView
 from colors import Col
 from login import *
 from scene import SceneManager
+from game import GameScene
 
 pg.init()
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
@@ -11,7 +12,8 @@ clock = pg.time.Clock()
 
 # start game with login screen
 sm = SceneManager()
-sm.set_scene(LoginScene({}))
+#sm.set_scene(LoginScene({}))
+sm.set_scene(GameScene({}))
 
 running = True
 while running:

@@ -13,6 +13,7 @@ class GameView:
 
         self.tile = -1
         self.off_x, self.off_y = 0, 0
+        self.preview_coords = [-1, -1]
 
     def draw_circle(self, surface, x, y, radius, color):
         gfxdraw.aacircle(surface, x, y, radius, color)
@@ -29,14 +30,19 @@ class GameView:
         self.tile = int(tile)
 
         self.off_x = int((w - self.game_data.w * self.tile) / 2)
-        self.off_y = int((h - self.game_data.w * self.tile) / 2)
+        self.off_y = int((h - self.game_data.h * self.tile) / 2)
 
         # draw sticks
         for y in range(len(self.game_data.stick_data)):
             for x in range(len(self.game_data.stick_data[y])):
                 val = self.game_data.stick_data[y][x]
-                if val == Player.NONE: continue
-                col = Col.ENEMY if val == Player.HIM else Col.PLAYER
+                preview = x == self.preview_coords[0] and y == self.preview_coords[1]
+
+                if val == Player.NONE and not preview: continue
+
+                if val == Player.NONE: col = (255, 255, 0)
+                elif val == Player.HIM: col = Col.ENEMY
+                else: col = Col.PLAYER
 
                 if y % 2 == 0:
                     # horizontal
@@ -54,6 +60,7 @@ class GameView:
         # draw dots
         for y in range(self.game_data.h + 1):
             for x in range(self.game_data.w + 1):
+                radius = self.dot_radius
                 # pg.draw.circle(screen, (0,0,0),
                 #            (self.off_x + x * self.tile, self.off_y + y * self.tile), self.dot_radius)
-                self.draw_circle(screen, self.off_x + x * self.tile, self.off_y + y * self.tile, self.dot_radius, Col.DOT)
+                self.draw_circle(screen, self.off_x + x * self.tile, self.off_y + y * self.tile, radius, Col.DOT)
