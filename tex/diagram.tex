@@ -1,0 +1,81 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{titling}
+\usepackage{float}
+\usepackage[parfill]{parskip}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+
+\author{Vladan Trhlík}
+\title{UPS}
+
+\begin{document}
+
+\maketitle
+
+\section{Protokol}
+
+\subsection{Přihlášení}
+\begin{itemize}
+	\item \textbf{Client:} \textt{LOGIN|<name>}
+	\item \textbf{Server:} \textt{OK/ERR<1/2>}
+\end{itemize}
+
+\subsection{Načtení všech lobby}
+\begin{itemize}
+	\item \textbf{Client:} \textt{LOAD\_LOBBY}
+	\item \textbf{Server:} \textt{OK|<lobby1>|<lobby2|.../ERR}
+\end{itemize}
+
+\subsection{Vytvoření lobby}
+\begin{itemize}
+	\item \textbf{Client:} \textt{CREATE|<lobby-name>}
+	\item \textbf{Server:} \textt{OK/ERR<1/2>}
+\end{itemize}
+
+\subsection{Připojení do lobby}
+\begin{itemize}
+	\item \textbf{Client:} \textt{JOIN|<lobby-name>}
+	\item \textbf{Server:} \textt{OK/ERR}
+\end{itemize}
+
+\subsection{Oponent se připojil}
+\begin{itemize}
+	\item \textbf{Server:} \textt{OP\_JOIN|<op-name>}
+	\item \textbf{Client:} \textt{OK/ERR}
+\end{itemize}
+
+\subsection{Tah}
+\begin{itemize}
+	\item \textbf{Client:} \textt{TURN|X|Y}
+	\item \textbf{Server:} \textt{OK/ERR<0/3>}
+\end{itemize}
+
+\subsection{Hráč je na tahu}
+\begin{itemize}
+	\item \textbf{Server:} \textt{ON\_TURN}
+	\item \textbf{Client:} \textt{OK/ERR}
+\end{itemize}
+
+\subsection{Oponent je na tahu}
+\begin{itemize}
+	\item \textbf{Server:} \textt{OP\_TURN}
+	\item \textbf{Client:} \textt{OK/ERR}
+
+\end{itemize}
+
+\subsection{Konec hry}
+\begin{itemize}
+	\item \textbf{Server:} \textt{END|<WIN/LOSE>}
+	\item \textbf{Client:} \textt{OK/ERR}
+\end{itemize}
+
+
+\end{document}
