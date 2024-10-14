@@ -14,10 +14,13 @@
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 % automata
 \usepackage{tikz}
-\usetikzlibrary{automata,positioning}
+\usetikzlibrary {arrows.meta,automata,positioning}
 
 \author{Vladan Trhlík}
-\title{UPS}
+\title{ %
+	Semestrální práce z KIV/UPS \\
+	\large Dots and Boxes  \\
+}
 
 \begin{document}
 
@@ -25,73 +28,91 @@
 
 \section{Protokol}
 
-\subsection{Přihlášení}
+\subsection*{Přihlášení}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{LOGIN|<name>}
-	\item \textbf{Server:} \texttt{OK/ERR<1/2>}
+	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
 \end{itemize}
 
-\subsection{Načtení všech lobby}
+\subsection*{Načtení všech lobby}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{LOAD\_LOBBY}
-	\item \textbf{Server:} \texttt{OK|<N>|<lobby1-name>|<lobby2-name>|...|<lobbyN-name>/ERR}
+	\item \textbf{Server:} \texttt{OK|<N>|<lobby1-name>|<lobby2-name>|...|<lobbyN-name>}
 \end{itemize}
 
-\subsection{Vytvoření lobby}
+\subsection*{Vytvoření lobby}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{CREATE|<lobby-name>}
-	\item \textbf{Server:} \texttt{OK/ERR<1/2>}
+	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
 \end{itemize}
 
-\subsection{Připojení do lobby}
+\subsection*{Připojení do lobby}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{JOIN|<lobby-name>}
-	\item \textbf{Server:} \texttt{OK/ERR}
+	\item \textbf{Server:} \texttt{OK|<op-name> / ERR<1/5>}
 \end{itemize}
 
-\subsection{Oponent se připojil}
+\subsection*{Oponent se připojil}
 \begin{itemize}
 	\item \textbf{Server:} \texttt{OP\_JOIN|<op-name>}
-	\item \textbf{Client:} \texttt{OK/ERR}
+	\item \textbf{Client:} \texttt{OK / ERR<4/5>}
 \end{itemize}
 
-\subsection{Tah}
+\subsection*{Oponent se odpojil}
+\begin{itemize}
+	\item \textbf{Server:} \texttt{OP\_LEFT}
+	\item \textbf{Client:} \texttt{OK / ERR<4>}
+\end{itemize}
+
+\subsection*{Odpojení od hry}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{LEAVE}
+	\item \textbf{Server:} \texttt{OK / ERR<4>}
+\end{itemize}
+
+\subsection*{Tah}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{TURN|X|Y}
-	\item \textbf{Server:} \texttt{OK/ERR<0/3>}
+	\item \textbf{Server:} \texttt{OK / ERR<1/3>}
 \end{itemize}
 
-\subsection{Hráč je na tahu}
+\subsection*{Hráč je na tahu}
 \begin{itemize}
 	\item \textbf{Server:} \texttt{ON\_TURN}
-	\item \textbf{Client:} \texttt{OK/ERR}
+	\item \textbf{Client:} \texttt{OK / ERR<4>}
 \end{itemize}
 
-\subsection{Oponent je na tahu}
+\subsection*{Oponent je na tahu}
 \begin{itemize}
 	\item \textbf{Server:} \texttt{OP\_TURN}
-	\item \textbf{Client:} \texttt{OK/ERR}
-
+	\item \textbf{Client:} \texttt{OK / ERR<4>}
 \end{itemize}
 
-\subsection{Konec hry}
+\subsection*{Konec hry}
 \begin{itemize}
 	\item \textbf{Server:} \texttt{END|<WIN/LOSE>}
-	\item \textbf{Client:} \texttt{OK/ERR}
+	\item \textbf{Client:} \texttt{OK / ERR<4>}
 \end{itemize}
 
-\section{Errory}
+\subsection*{Ping}
 \begin{itemize}
-	\item \texttt{0} -- default
+	\item \textbf{Server, Client:} \texttt{PING}
+	\item \textbf{Client, Server:} \texttt{OK}
+\end{itemize}
+
+\section{Error kódy}
+\begin{itemize}
 	\item \texttt{1} -- invalid
-	\item \texttt{2} -- already exists
-	\item \texttt{3} -- not on turn
+	\item \texttt{2} -- name already exists
+	\item \texttt{3} -- player not on turn
+	\item \texttt{4} -- player not in game
+	\item \texttt{5} -- already in game
 \end{itemize}
 
 \section{Diagram}
-\begin{tikzpicture}[shorten >=0pt,node distance=4cm,on grid,auto] 
+\begin{tikzpicture}[node distance=4cm,on grid,auto] 
 
-   \node[state,initial] (q_0)   {waiting}; 
+   \node[state,initial,initial text=$P_1$\ created\ lobby] (q_0)   {waiting}; 
    \node[state] (q_1) [right=of q_0] {$P_1$ on turn}; 
    \node[state] (q_2) [right=of q_1] {$P_2$ on turn}; 
    \node[state] (q_3) [below=of q_1] {$P_1$ wins}; 
@@ -99,7 +120,6 @@
    \node[state,accepting] (q_5) [below=of q_3] {end}; 
     \path[->] 
 		(q_0) edge node {$P_2$ joined} (q_1)
-		% todo wtf
 		(q_1) edge [bend left] node {$P_1$ turn} (q_2)
 			  edge [loop above] node {$P_1$ turn} ()
 			  edge node {$P_1$ turn} (q_3)
@@ -107,15 +127,8 @@
 			  edge [loop above] node {$P_2$ turn} ()
 			  edge node {$P_2$ turn} (q_4)
 		(q_3) edge node {end} (q_5)
-		(q_4) edge node {end} (q_5)
+		(q_4) edge node {end} (q_5);
 
-     
-	%(q_0) edge  node {0} (q_1)
-    %      edge  node [swap] {1} (q_2)
-    %(q_1) edge  node  {1} (q_3)
-    %      edge [loop above] node {0} ()
-    %(q_2) edge  node [swap] {0} (q_3) 
-    %      edge [loop below] node {1} ();
 \end{tikzpicture}
 
 \end{document}
