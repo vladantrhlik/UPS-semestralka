@@ -36,6 +36,7 @@ typedef enum {
 typedef struct {
 	int fd;
 	char name[MAX_NAME_LEN + 1];
+	int index;
 	PState state;
 } Player;
 

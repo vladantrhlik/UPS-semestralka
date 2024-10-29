@@ -11,6 +11,7 @@
 #include "server.h"
 #include "structs.h"
 #include "handlers.h"
+#include "utils.h"
 
 Player *find_connected_player(Server *s, int fd) {
 	for (int i = 0; i < s->player_count; i++) {
@@ -39,6 +40,7 @@ int handle_msg(Server *s, MsgType type, int fd, char *msg) {
 			p = (Player*) malloc(sizeof(Player));
 			p->fd = fd;
 			p->state = CONNECTED;
+			p->index = s->player_count;
 			if (!p) {
 				printf("Malloc err\n");
 				return -1;
@@ -53,7 +55,7 @@ int handle_msg(Server *s, MsgType type, int fd, char *msg) {
 				printf("Player not found in connected\n");
 				return -1;
 			}
-			printf("msg from %d: %s", fd, msg);
+			printf("\nmsg from %d: %s", fd, msg);
 			char *cmd = strtok(msg, DELIMETERS);
 
 			if (!strcmp(cmd, "LIST")) {
@@ -68,9 +70,14 @@ int handle_msg(Server *s, MsgType type, int fd, char *msg) {
 				printf("Player not found in connected\n");
 				return -1;
 			}
-			p->state = DISCONNECTED;
-			printf("Disconnected: %d\n", fd);
-			// TODO: remove from list if no name
+			if (strlen(p->name) == 0) {
+				// remove from players if didn't even logged
+				remove_player(s, p);
+			} else {
+				// mark as disconnected
+				p->state = DISCONNECTED;
+				printf("Disconnected: %d\n", fd);
+			}
 		break;
 	}
 	return 0;
