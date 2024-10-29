@@ -53,7 +53,7 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
 		return 1;
 	}
-	p->state = next;
+	//p->state = next;
 	
 	// try reconnecting players if it was ever connected before
 	for (int i = 0; i < s->player_count; i++) {
@@ -80,6 +80,7 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 	strcpy(p->name, name);
 	p->state = ST_LOGGED;
 	printf("Loggin new player '%s'\n", name);
+	p->state = next;
 	send(p->fd, "OK\n", strlen("OK\n"), 0);
 	return 0;
 }
@@ -192,9 +193,10 @@ int join_handler(Server *s, Player *p) {
 	}
 	p->state = next;
 	p->game = g;
+
 	// update players of the game
-	if (g->p0 != NULL) {
 	if (g->p0) {
+		g->p0->state = transition(g->p0->state, EV_JOIN);
 		g->p1 = p;
 	}
 	if (g->p1) {
