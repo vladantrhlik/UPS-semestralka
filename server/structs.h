@@ -37,12 +37,21 @@ typedef enum {
 	DISCONNECT
 } MsgType;
 
+typedef struct Gaym Game;
+
 typedef struct {
 	int fd;
 	char name[MAX_NAME_LEN + 1];
 	int index;
 	PState state;
+	Game *game;
 } Player;
+
+typedef struct Gaym {
+	Player *p0, *p1;
+	char name[MAX_NAME_LEN + 1];
+	int on_turn;
+} Game;
 
 typedef struct {
 	int server_socket;
@@ -53,6 +62,10 @@ typedef struct {
 	Player **players;
 	int player_count;
 	int players_size;
+	/* games */
+	Game **games;
+	int game_count;
+	int games_size;
 } Server;
 
 #endif
