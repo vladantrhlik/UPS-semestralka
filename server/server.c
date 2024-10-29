@@ -41,7 +41,7 @@ int server_create(Server *s, in_addr_t addr, int port) {
 	return 0;
 }
 
-int server_handle(Server *s, int (*handle)(MsgType type, int fd, char *msg)) {
+int server_handle(Server *s, int (*handle)(Server *s, MsgType type, int fd, char *msg)) {
 	static char buffer[BUFFER_SIZE];
 	int msg_len;
 
@@ -63,7 +63,7 @@ int server_handle(Server *s, int (*handle)(MsgType type, int fd, char *msg)) {
 				if (client_socket >= 0) {
 					FD_SET( client_socket, &s->client_socks );
 					//printf("Pripojen novy klient a pridan do sady socketu\n");
-					handle(CONNECT, client_socket, NULL);
+					handle(s, CONNECT, client_socket, NULL);
 				} else {
 					printf("Accept - ERR\n");
 				}
@@ -81,14 +81,14 @@ int server_handle(Server *s, int (*handle)(MsgType type, int fd, char *msg)) {
 				if (msg_len > 0){
 					memset(buffer, '\0', 8);
 					recv(fd, &buffer, msg_len, 0);
-					handle(MSG, fd, buffer);
+					handle(s, MSG, fd, buffer);
 					//printf("[%d]: %s\n", fd, buffer);
 				}
 				// na socketu se stalo neco spatneho
 				else {
 					close(fd);
 					FD_CLR( fd, &s->client_socks );
-					handle(DISCONNECT, fd, buffer);
+					handle(s, DISCONNECT, fd, buffer);
 					//printf("Klient se odpojil a byl odebran ze sady socketu\n");
 				}
 			}
