@@ -15,7 +15,7 @@
 
 Player *find_connected_player(Server *s, int fd) {
 	for (int i = 0; i < s->player_count; i++) {
-		if (s->players[i]->fd == fd && s->players[i]->state != DISCONNECTED) return s->players[i];
+		if (s->players[i]->fd == fd && s->players[i]->state != ST_DISCONNECTED) return s->players[i];
 	}
 	return NULL;
 }
@@ -39,7 +39,7 @@ int handle_msg(Server *s, MsgType type, int fd, char *msg) {
 			// malloc new player
 			p = (Player*) malloc(sizeof(Player));
 			p->fd = fd;
-			p->state = CONNECTED;
+			p->state = ST_CONNECTED;
 			p->index = s->player_count;
 			if (!p) {
 				printf("Malloc err\n");
@@ -75,7 +75,7 @@ int handle_msg(Server *s, MsgType type, int fd, char *msg) {
 				remove_player(s, p);
 			} else {
 				// mark as disconnected
-				p->state = DISCONNECTED;
+				p->state = ST_DISCONNECTED;
 				printf("Disconnected: %d\n", fd);
 			}
 		break;

@@ -9,7 +9,7 @@
 int list_handler(Server *s, Player *p) {
 	printf("listing all players:\n");
 	for (int i = 0; i < s->player_count; i++) {
-		printf("[%d]: %s (%s)\n", s->players[i]->fd, s->players[i]->name, s->players[i]->state == DISCONNECTED ? "disconnected" : "connected");
+		printf("[%d]: %s (%s)\n", s->players[i]->fd, s->players[i]->name, s->players[i]->state == ST_DISCONNECTED ? "disconnected" : "connected");
 	}
 	return 0;
 }
@@ -23,6 +23,13 @@ int login_handler(Server *s, Player *p) {
 	}
 
 	// TODO: validate if its legal to login (state machine?)
+	PState next = transition(p->state, EV_LOGIN);
+	if (!next) {
+		printf("Invalid state\n");
+		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+		return 1;
+	}
+	p->state = next;
 
 	// validate nickname (only alphanumeric chars) + _; length
 	int len = strlen(name);
@@ -42,13 +49,13 @@ int login_handler(Server *s, Player *p) {
 	// try reconnecting players if it was ever connected before
 	for (int i = 0; i < s->player_count; i++) {
 		if (!strcmp(s->players[i]->name, name)) {
-			if (s->players[i]->state != DISCONNECTED) {
+			if (s->players[i]->state != ST_DISCONNECTED) {
 				send(p->fd, "ERR5\n", strlen("ERR1\n"), 0);
 				printf("Already connected, rejecting\n");
 				return 1;
 			} else {
 				printf("Reconnecting player\n");
-				s->players[i]->state = LOGGED;
+				s->players[i]->state = ST_LOGGED;
 				s->players[i]->fd = p->fd;
 
 				// remove player from list (now its players[i])
@@ -62,7 +69,7 @@ int login_handler(Server *s, Player *p) {
 	
 	// login new player
 	strcpy(p->name, name);
-	p->state = LOGGED;
+	p->state = ST_LOGGED;
 	printf("Loggin new player '%s'\n", name);
 	send(p->fd, "OK\n", strlen("OK\n"), 0);
 	return 0;

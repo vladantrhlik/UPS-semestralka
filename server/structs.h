@@ -12,20 +12,24 @@
 #define DELIMETERS "|\n"
 
 typedef enum {
-	CONNECTED,
-	DISCONNECTED,
-	LOGGED,
-	WAITING,
-	ON_TURN,
-	NO_TURN
+	ST_CONNECTED,
+	ST_DISCONNECTED,
+	ST_LOGGED,
+	ST_WAITING,
+	ST_ON_TURN,
+	ST_NO_TURN
 } PState;
 
+#define STATE_COUNT 6
+
 typedef enum {
-	LOGIN,
-	CREATE,
-	JOIN,
-	TURN
+	EV_LOGIN,
+	EV_CREATE,
+	EV_JOIN,
+	EV_TURN
 } PEvent;
+
+#define EVENT_COUNT 4
 
 typedef enum {
 	CONNECT,
