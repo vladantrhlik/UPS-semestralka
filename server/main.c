@@ -62,7 +62,11 @@ int handle_msg(Server *s, MsgType type, int fd, char *msg) {
 				list_handler(s, p);
 			} else if (!strcmp(cmd, "LOGIN")) {
 				login_handler(s, p);
-			} 
+			} else if (!strcmp(cmd, "CREATE")) {
+				create_handler(s, p);
+			} else if (!strcmp(cmd, "JOIN")) {
+				join_handler(s, p);
+			}
 		break;
 		case DISCONNECT:
 			p = find_connected_player(s, fd);
