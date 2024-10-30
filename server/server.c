@@ -41,7 +41,7 @@ int server_create(Server *s, in_addr_t addr, int port) {
 	return 0;
 }
 
-int server_handle(Server *s, int (*handle)(Server *s, MsgType type, int fd, char *msg)) {
+int server_handle(Server *s, int (*handle)(Server *s, SEvent type, int fd, char *msg)) {
 	static char buffer[BUFFER_SIZE];
 	int msg_len;
 

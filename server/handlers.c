@@ -30,6 +30,7 @@ int list_handler(Server *s, Player *p) {
 			printf("[%d] %s: %s (%d) is waiting\n", i, g->name, g->p0->name, g->p0->fd);
 		}
 	}
+	send_msg(p, OK, NULL);
 	return 0;
 }
 
