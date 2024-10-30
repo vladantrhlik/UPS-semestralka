@@ -95,15 +95,11 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 					if (g->p0) g->p0->game = NULL;
 					if (g->p1) g->p1->game = NULL;
 					remove_game(s, g);
+				} else {
+					// notify about op left
+					if (g->p0 == p) send_msg(g->p1, OP_DISCONNECT, NULL);
+					if (g->p1 == p) send_msg(g->p0, OP_DISCONNECT, NULL);
 				}
-				/*
-				if ((!g->p0 || g->p0->state == ST_DISCONNECTED) && (!g->p1 || g->p1->state == ST_DISCONNECTED)) {
-					printf("Removing game '%s'\n", g->name);
-					if (g->p0) g->p0->game = NULL;
-					if (g->p1) g->p1->game = NULL;
-					remove_game(s, g);
-				}
-				*/
 			}
 		break;
 	}

@@ -40,7 +40,9 @@ typedef enum {
 
 typedef enum {
 	OK = 1,
-	ERR
+	ERR,
+	OP_JOIN,
+	OP_DISCONNECT
 } MsgType;
 
 

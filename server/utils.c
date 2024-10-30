@@ -74,7 +74,9 @@ int remove_game(Server *s, Game *g) {
 
 char *typeMessages[] = {
 	[OK] = "OK",
-	[ERR] = "ERR"
+	[ERR] = "ERR",
+	[OP_JOIN] = "OP_JOIN",
+	[OP_DISCONNECT] = "OP_LEAVE"
 };
 
 int send_msg(Player *p, MsgType type, char *msg) {
