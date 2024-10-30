@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 
 
 PState transitions[STATE_COUNT][EVENT_COUNT] = {
@@ -69,4 +70,27 @@ int remove_game(Server *s, Game *g) {
 
 	return 0;
 
+}
+
+char *typeMessages[] = {
+	[OK] = "OK",
+	[ERR] = "ERR"
+};
+
+int send_msg(Player *p, MsgType type, char *msg) {
+	static char buffer[128];
+	if (!p || p->state == ST_DISCONNECTED) {
+		printf("Error sending message '%s' to %s (%d)\n", msg, p->name, p->fd);
+		return 1;
+	}
+
+	if (msg) {
+		sprintf(buffer, "%s%s\n", typeMessages[type], msg);
+	} else {
+		sprintf(buffer, "%s\n", typeMessages[type]);
+	}
+
+	printf("to %s: %s\n", p->name, buffer);
+	send(p->fd, buffer, strlen(buffer), 0);
+	return 0;
 }

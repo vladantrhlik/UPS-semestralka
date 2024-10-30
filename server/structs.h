@@ -11,6 +11,8 @@
 #define END_DELIM "\n"
 #define DELIMETERS "|\n"
 
+// player states
+#define STATE_COUNT 6
 typedef enum {
 	ST_CONNECTED,
 	ST_DISCONNECTED,
@@ -20,8 +22,8 @@ typedef enum {
 	ST_NO_TURN
 } PState;
 
-#define STATE_COUNT 6
-
+// player events
+#define EVENT_COUNT 4
 typedef enum {
 	EV_LOGIN,
 	EV_CREATE,
@@ -29,13 +31,18 @@ typedef enum {
 	EV_TURN
 } PEvent;
 
-#define EVENT_COUNT 4
-
+// server events
 typedef enum {
 	CONNECT,
 	MSG,
 	DISCONNECT
+} SEvent;
+
+typedef enum {
+	OK = 1,
+	ERR
 } MsgType;
+
 
 typedef struct Gaym Game;
 

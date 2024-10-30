@@ -20,7 +20,7 @@ Player *find_connected_player(Server *s, int fd) {
 	return NULL;
 }
 
-int handle_msg(Server *s, MsgType type, int fd, char *msg) {
+int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 	Player *p;
 
 	switch (type) {
