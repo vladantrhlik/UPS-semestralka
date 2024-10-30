@@ -37,20 +37,20 @@ int list_handler(Server *s, Player *p) {
 int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 	if (!name) {
 		printf("No args\n");
-		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 
 	// validate nickname (only alphanumeric chars) + _; length
 	int len = strlen(name);
 	if (len > MAX_NAME_LEN) {
-		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+		send_msg(p, ERR, "1");
 		printf("Invalid nickname\n");
 		return 1;
 	}
 	for (int i = 0; i < len; i++) {
 		if (!isalnum(name[i]) && name[i] != '_') {
-			send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+			send_msg(p, ERR, "1");
 			printf("Invalid nickname\n");
 			return 1;
 		}
@@ -60,7 +60,7 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 	PState next = transition(p->state, EV_LOGIN);
 	if (!next) {
 		printf("Invalid state\n");
-		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 	//p->state = next;
@@ -69,8 +69,8 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 	for (int i = 0; i < s->player_count; i++) {
 		if (!strcmp(s->players[i]->name, name)) {
 			if (s->players[i]->state != ST_DISCONNECTED) {
-				send(p->fd, "ERR5\n", strlen("ERR1\n"), 0);
 				printf("Already connected, rejecting\n");
+				send_msg(p, ERR, "5");
 				return 1;
 			} else {
 				printf("Reconnecting player\n");
@@ -79,8 +79,7 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 
 				// remove player from list (now its players[i])
 				remove_player(s, p);
-
-				send(p->fd, "OK\n", strlen("OK\n"), 0);
+				send_msg(s->players[i], OK, NULL);
 				return 0;
 			}
 		}
@@ -91,7 +90,7 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 	p->state = ST_LOGGED;
 	printf("Loggin new player '%s'\n", name);
 	p->state = next;
-	send(p->fd, "OK\n", strlen("OK\n"), 0);
+	send_msg(p, OK, NULL);
 	return 0;
 }
 
@@ -99,7 +98,7 @@ int create_handler(Server *s, Player *p) {
 	char *name = strtok(NULL, END_DELIM);
 	if (!name) {
 		printf("Invalid args\n");
-		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 
@@ -109,11 +108,13 @@ int create_handler(Server *s, Player *p) {
 	int len = strlen(name);
 	if (len > MAX_NAME_LEN) {
 		printf("Name too long\n");
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 	for (int i = 0; i < len; i++) {
 		if (!isalnum(name[i])) {
 	  		printf("Invalid name\n");
+			send_msg(p, ERR, "1");
 	  		return 1;
 		}
 	}
@@ -123,6 +124,7 @@ int create_handler(Server *s, Player *p) {
 		Game *g = s->games[i];
 		if (!strcmp(g->name, name)) {
 			printf("Game already exists\n");
+			send_msg(p, ERR, "1");
 			return 1;
 		}
 	}
@@ -131,7 +133,7 @@ int create_handler(Server *s, Player *p) {
 	PState next = transition(p->state, EV_CREATE);
 	if (!next) {
 		printf("Invalid state\n");
-		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 	p->state = next;
@@ -142,6 +144,7 @@ int create_handler(Server *s, Player *p) {
 		Game **new_games = realloc(s->games, sizeof(Game*) * (s->game_count + 10));
 		if (!new_games) {
 			printf("Malloc err\n");
+			send_msg(p, ERR, "1");
 			return -1;
 		}
 		s->games = new_games;
@@ -150,6 +153,7 @@ int create_handler(Server *s, Player *p) {
 	Game *g = (Game*) malloc(sizeof(Game));
 	if (!g) {
 		printf("Malloc err\n");
+		send_msg(p, ERR, "1");
 		return -1;
 	}
 	printf("name: %s\n", name);
@@ -162,7 +166,7 @@ int create_handler(Server *s, Player *p) {
 	s->games[s->game_count] = g;
 	s->game_count++;
 	printf("Game '%s' created.\n", g->name);
-	send(p->fd, "OK\n", 3, 0);
+	send_msg(p, OK, NULL);
 
 	return 0;
 }
@@ -171,6 +175,7 @@ int join_handler(Server *s, Player *p) {
 	char *name = strtok(NULL, END_DELIM);
 	if (!name) {
 		printf("No args\n");
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 
@@ -185,6 +190,7 @@ int join_handler(Server *s, Player *p) {
 	}
 	if (!g) {
 		printf("Game not found\n");
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 
@@ -196,6 +202,7 @@ int join_handler(Server *s, Player *p) {
 			rejoin = 1;
 		} else {
 			printf("Game is full\n");
+			send_msg(p, ERR, "1");
 			return 1;
 		}
 	}
@@ -204,6 +211,7 @@ int join_handler(Server *s, Player *p) {
 	if ((g->p0 == p && !g->p1) ||
 		(g->p1 == p && !g->p0)) {
 		printf("Can't join game you're already in\n");
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 
@@ -211,7 +219,7 @@ int join_handler(Server *s, Player *p) {
 	PState next = transition(p->state, EV_JOIN);
 	if (!next) {
 		printf("Invalid state\n");
-		send(p->fd, "ERR1\n", strlen("ERR1\n"), 0);
+		send_msg(p, ERR, "1");
 		return 1;
 	}
 	p->state = next;
@@ -230,6 +238,7 @@ int join_handler(Server *s, Player *p) {
 
 	if (rejoin) printf("Rejoin successfull\n");
 	else printf("Join successfull\n");
+	send_msg(p, OK, NULL);
 
 	return 0;
 }
