@@ -74,21 +74,36 @@ int handle_msg(Server *s, MsgType type, int fd, char *msg) {
 				printf("Player not found in connected\n");
 				return -1;
 			}
-			// remove game is player was waiting in the game
-			Game *g = p->game;
-			if (g) {
-				if (!g->p0 || !g->p1) {
-					// player was waiting in game alone -> delete game
-					remove_game(s, g);
-				}
-			}
+
 			if (strlen(p->name) == 0) {
 				// remove from players if didn't even logged
 				remove_player(s, p);
+				break;
 			} else {
 				// mark as disconnected
 				p->state = ST_DISCONNECTED;
 				printf("Disconnected: %d\n", fd);
+			}
+
+			// remove game if player was waiting in the game
+			Game *g = p->game;
+			if (g) {
+				// player was waiting in game alone -> delete game
+				if ((p == g->p0 && g->p1 && g->p1->state == ST_DISCONNECTED) ||
+					(p == g->p1 && g->p0 && g->p0->state == ST_DISCONNECTED)) {
+					printf("Removing game '%s'\n", g->name);
+					if (g->p0) g->p0->game = NULL;
+					if (g->p1) g->p1->game = NULL;
+					remove_game(s, g);
+				}
+				/*
+				if ((!g->p0 || g->p0->state == ST_DISCONNECTED) && (!g->p1 || g->p1->state == ST_DISCONNECTED)) {
+					printf("Removing game '%s'\n", g->name);
+					if (g->p0) g->p0->game = NULL;
+					if (g->p1) g->p1->game = NULL;
+					remove_game(s, g);
+				}
+				*/
 			}
 		break;
 	}

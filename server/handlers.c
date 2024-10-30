@@ -7,18 +7,27 @@
 #include <string.h>
 #include <unistd.h>
 
+char *states[STATE_COUNT] = {
+	[ST_CONNECTED] = "connected",
+	[ST_LOGGED] = "logged",
+	[ST_DISCONNECTED] = "disconnected",
+	[ST_WAITING] = "waiting",
+	[ST_NO_TURN] = "not on turn",
+	[ST_ON_TURN] = "on turn"
+};
+
 int list_handler(Server *s, Player *p) {
 	printf("\nPlayers:\n");
 	for (int i = 0; i < s->player_count; i++) {
-		printf("[%d]: %s (%s)\n", s->players[i]->fd, s->players[i]->name, s->players[i]->state == ST_DISCONNECTED ? "disconnected" : "connected");
+		printf("[%d]: %s (%d) - %s\n", i, s->players[i]->name, s->players[i]->fd, states[s->players[i]->state]);
 	}
 	printf("\nGames:\n");
 	for (int i = 0; i < s->game_count; i++) {
 		Game *g = s->games[i];
 		if (g->p1 && g->p0) {
-			printf("%s: %s (%d) X %s (%d)\n", g->name, g->p0->name, g->p0->fd, g->p1->name, g->p1->fd);
+			printf("[%d] %s: %s (%d) X %s (%d)\n", i, g->name, g->p0->name, g->p0->fd, g->p1->name, g->p1->fd);
 		} else {
-			printf("%s: %s (%d) is waiting\n", g->name, g->p0->name, g->p0->fd);
+			printf("[%d] %s: %s (%d) is waiting\n", i, g->name, g->p0->name, g->p0->fd);
 		}
 	}
 	return 0;
@@ -178,9 +187,22 @@ int join_handler(Server *s, Player *p) {
 		return 1;
 	}
 
+	int rejoin = 0;
+
 	// check if game is waiting for more players
 	if (g->p1 != NULL && g->p0 != NULL) {
-		printf("Game is full\n");
+		if (g->p1 == p || g->p0 == p) {
+			rejoin = 1;
+		} else {
+			printf("Game is full\n");
+			return 1;
+		}
+	}
+
+	// check if same player isn't joining
+	if ((g->p0 == p && !g->p1) ||
+		(g->p1 == p && !g->p0)) {
+		printf("Can't join game you're already in\n");
 		return 1;
 	}
 
@@ -195,16 +217,18 @@ int join_handler(Server *s, Player *p) {
 	p->game = g;
 
 	// update players of the game
-	if (g->p0) {
-		g->p0->state = transition(g->p0->state, EV_JOIN);
-		g->p1 = p;
-	}
-	if (g->p1) {
-		g->p1->state = transition(g->p1->state, EV_JOIN);
-		g->p0 = p;
+	if (!rejoin) {
+		if (g->p0) {
+			g->p0->state = transition(g->p0->state, EV_JOIN);
+			g->p1 = p;
+		} else if (g->p1) {
+			g->p1->state = transition(g->p1->state, EV_JOIN);
+			g->p0 = p;
+		}
 	}
 
-	printf("Join successfull\n");
+	if (rejoin) printf("Rejoin successfull\n");
+	else printf("Join successfull\n");
 
 	return 0;
 }

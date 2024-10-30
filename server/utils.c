@@ -56,10 +56,16 @@ int remove_game(Server *s, Game *g) {
 	}
 
 	free(g);
-	// move last player to index
-	s->games[index] = s->games[s->game_count - 1];
-	s->games[s->game_count - 1] = NULL;
-	s->game_count--;
+	if (index < s->game_count - 1) {
+		// move last player to index
+		s->games[index] = s->games[s->game_count - 1];
+		s->games[s->game_count - 1] = NULL;
+		s->game_count--;
+	} else {
+		// remove last
+		s->games[index] = NULL;
+		s->game_count--;
+	}
 
 	return 0;
 
