@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 char *states[STATE_COUNT] = {
@@ -102,8 +103,6 @@ int create_handler(Server *s, Player *p) {
 		return 1;
 	}
 
-	printf("Creating game '%s'\n", name);
-
 	// validate name
 	int len = strlen(name);
 	if (len > MAX_NAME_LEN) {
@@ -156,7 +155,6 @@ int create_handler(Server *s, Player *p) {
 		send_msg(p, ERR, "1");
 		return -1;
 	}
-	printf("name: %s\n", name);
 	strcpy(g->name, name);
 	g->p0 = p;
 	p->game = g;
@@ -229,11 +227,17 @@ int join_handler(Server *s, Player *p) {
 	if (!rejoin) {
 		if (g->p0) {
 			g->p0->state = transition(g->p0->state, EV_JOIN);
+			send_msg(g->p0, OP_JOIN, NULL);
 			g->p1 = p;
 		} else if (g->p1) {
 			g->p1->state = transition(g->p1->state, EV_JOIN);
+			send_msg(g->p1, OP_JOIN, NULL);
 			g->p0 = p;
 		}
+	} else {
+		// notify oponent about rejoin
+		if (g->p0 == p) send_msg(g->p1, OP_JOIN, NULL);
+		if (g->p1 == p) send_msg(g->p0, OP_JOIN, NULL);
 	}
 
 	if (rejoin) printf("Rejoin successfull\n");
