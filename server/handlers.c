@@ -152,7 +152,7 @@ int create_handler(Server *s, Player *p) {
 	}
 	// malloc new game
 	
-	Game *g = game_create(3, 3, name, p);
+	Game *g = game_create(3, 1, name, p);
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");
@@ -310,7 +310,14 @@ int turn_handler(Server *s, Player *p) {
 		else g->p0->state = ST_ON_TURN;
 		send_msg(p, OK, NULL);
 	} else {
-		send_msg(p, OK, "|CONTINUE");
+		// check if not win
+		int winner = is_game_finished(g);
+		if (winner > -1) {
+			send_msg(g->p0, 0, winner == 0 ? "WIN" : "LOSE");
+			send_msg(g->p1, 0, winner == 1 ? "WIN" : "LOSE");
+		} else {
+			send_msg(p, OK, "|CONTINUE");
+		}
 	}
 	
 	return 0;
