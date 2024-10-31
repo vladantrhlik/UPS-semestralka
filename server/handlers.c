@@ -1,5 +1,6 @@
 #include "handlers.h"
 #include "structs.h"
+#include "game.h"
 #include "utils.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -30,6 +31,7 @@ int list_handler(Server *s, Player *p) {
 		} else {
 			printf("[%d] %s: %s (%d) is waiting\n", i, g->name, g->p0->name, g->p0->fd);
 		}
+		game_print(g);
 	}
 	send_msg(p, OK, NULL);
 	return 0;
@@ -149,17 +151,14 @@ int create_handler(Server *s, Player *p) {
 		s->games = new_games;
 	}
 	// malloc new game
-	Game *g = (Game*) malloc(sizeof(Game));
+	
+	Game *g = game_create(3, 3, name, p);
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");
 		return -1;
 	}
-	strcpy(g->name, name);
-	g->p0 = p;
 	p->game = g;
-	g->p1 = NULL;
-	g->on_turn = 0;
 	// add game to games
 	s->games[s->game_count] = g;
 	s->game_count++;

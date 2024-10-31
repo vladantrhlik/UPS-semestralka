@@ -60,6 +60,8 @@ typedef struct Gaym {
 	Player *p0, *p1;
 	char name[MAX_NAME_LEN + 1];
 	int on_turn;
+	int width, height; // number of squares
+	int **sticks;
 } Game;
 
 typedef struct {
