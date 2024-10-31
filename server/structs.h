@@ -44,7 +44,11 @@ typedef enum {
 	OK = 1,
 	ERR,
 	OP_JOIN,
-	OP_DISCONNECT
+	OP_DISCONNECT,
+	WIN,
+	LOSE,
+	TURN,
+	YOUR_TURN
 } MsgType;
 
 

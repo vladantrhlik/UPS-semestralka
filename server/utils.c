@@ -79,7 +79,11 @@ char *typeMessages[] = {
 	[OK] = "OK",
 	[ERR] = "ERR",
 	[OP_JOIN] = "OP_JOIN",
-	[OP_DISCONNECT] = "OP_LEAVE"
+	[OP_DISCONNECT] = "OP_LEAVE",
+	[WIN] = "WIN",
+	[LOSE] = "LOSE",
+	[TURN] = "TURN",
+	[YOUR_TURN] = "ONTURN"
 };
 
 int send_msg(Player *p, MsgType type, char *msg) {
