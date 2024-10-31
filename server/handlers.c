@@ -245,3 +245,68 @@ int join_handler(Server *s, Player *p) {
 
 	return 0;
 }
+
+int turn_handler(Server *s, Player *p) {
+	// load args
+	char *x_str = strtok(NULL, DELIM);
+	char *y_str = strtok(NULL, END_DELIM);
+	if (!x_str || !y_str) {
+		printf("Invalid args\n");
+		send_msg(p, ERR, "1");
+		return 1;
+	}
+
+	// check if integers
+	int nan = 0;
+	for (int i = 0; i < strlen(x_str); i++) if (!isdigit(x_str[i])) nan = 1;
+	for (int i = 0; i < strlen(y_str); i++) if (!isdigit(y_str[i])) nan = 1;
+	if (nan) {
+		printf("Not a numbers\n");
+		send_msg(p, ERR, "1");
+		return 1;
+	}
+
+	int x = atoi(x_str);
+	int y = atoi(y_str);
+
+	// check player state
+	PState valid = transition(p->state, EV_GOOD_TURN);
+	if (!valid) {
+		printf("Invalid state\n");
+		send_msg(p, ERR, "1");
+		return 1;
+	}
+
+	Game *g = p->game;
+	int player = g->p0 == p ? 0 : 1;
+
+	printf("%s turn: %d, %d\n", p->name, x, y);
+
+	// check move
+	if (!is_turn_valid(g, x, y)) {
+		printf("Invalid move\n");
+		send_msg(p, ERR, "1");
+		return 1;
+	}
+
+	// figure out if good or bad turn -- closed square?
+	PEvent ev = game_potential_turn(g, player, x, y);
+	if (ev == EV_NULL) {
+		printf("Something fucked up, null potential state\n");
+		return 1;
+	}
+	PState next = transition(p->state, ev);
+	if (!next) {
+		printf("Something fucked up, null state\n");
+		return 1;
+	}
+	p->state = next;
+	if (ev == EV_BAD_TURN) {
+		if (p == g->p0) g->p1->state = ST_ON_TURN;
+		else g->p0->state = ST_ON_TURN;
+	}
+
+	game_set(g, player, x, y);
+	
+	return 0;
+}

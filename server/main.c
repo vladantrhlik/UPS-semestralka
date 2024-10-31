@@ -57,6 +57,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			}
 			printf("\nmsg from %d: %s", fd, msg);
 			char *cmd = strtok(msg, DELIMETERS);
+			if (!cmd) break;
 
 			if (!strcmp(cmd, "LIST")) {
 				list_handler(s, p);
@@ -66,6 +67,8 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				create_handler(s, p);
 			} else if (!strcmp(cmd, "JOIN")) {
 				join_handler(s, p);
+			} else if (!strcmp(cmd, "TURN")) {
+				turn_handler(s, p);
 			}
 		break;
 		case DISCONNECT:
