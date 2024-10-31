@@ -12,6 +12,8 @@ PState transitions[STATE_COUNT][EVENT_COUNT] = {
 	[ST_LOGGED][EV_CREATE] = ST_WAITING,
 	[ST_LOGGED][EV_JOIN] = ST_NO_TURN,
 	[ST_WAITING][EV_JOIN] = ST_ON_TURN,
+	[ST_ON_TURN][EV_BAD_TURN] = ST_NO_TURN,
+	[ST_ON_TURN][EV_GOOD_TURN] = ST_ON_TURN,
 };
 
 PState transition(PState state, PEvent ev) {

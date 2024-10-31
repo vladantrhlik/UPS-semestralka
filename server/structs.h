@@ -19,16 +19,18 @@ typedef enum {
 	ST_LOGGED,
 	ST_WAITING,
 	ST_ON_TURN,
-	ST_NO_TURN
+	ST_NO_TURN,
 } PState;
 
 // player events
-#define EVENT_COUNT 4
+#define EVENT_COUNT 6
 typedef enum {
 	EV_LOGIN,
 	EV_CREATE,
 	EV_JOIN,
-	EV_TURN
+	EV_GOOD_TURN,
+	EV_BAD_TURN,
+	EV_NULL,
 } PEvent;
 
 // server events
