@@ -300,13 +300,18 @@ int turn_handler(Server *s, Player *p) {
 		printf("Something fucked up, null state\n");
 		return 1;
 	}
+
 	p->state = next;
+	game_set(g, player, x, y);
+
 	if (ev == EV_BAD_TURN) {
+		// switch turns if bad turn
 		if (p == g->p0) g->p1->state = ST_ON_TURN;
 		else g->p0->state = ST_ON_TURN;
+		send_msg(p, OK, NULL);
+	} else {
+		send_msg(p, OK, "|CONTINUE");
 	}
-
-	game_set(g, player, x, y);
 	
 	return 0;
 }
