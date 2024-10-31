@@ -48,7 +48,10 @@ typedef enum {
 	WIN,
 	LOSE,
 	TURN,
-	YOUR_TURN
+	ON_TURN,	// player on turn
+	OP_TURN,	// oponent on turn
+	ACQ,		// square acquired
+	OP_ACQ		// oponent acq square
 } MsgType;
 
 
