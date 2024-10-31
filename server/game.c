@@ -23,6 +23,29 @@ int count_square(Game *g, int x, int y) {
 	return sum;
 }
 
+int is_game_finished(Game *g) {
+	if (!g) return -1;
+	int p0 = 0, p1 = 0;
+	for (int y = 0; y < g->height; y++) {
+		for (int x = 0; x < g->width; x++) {
+			switch (g->squares[y][x]) {
+				case -1:
+					return -1;
+					break;
+				case 0:
+					p0++;
+					break;
+				case 1:
+					p1++;
+					break;
+			}
+		}
+	}
+
+	return p0 > p1 ? 0 : 1;
+}
+
+
 Game *game_create(int width, int height, char *name, Player *p0) {
 	if (width < 1 || height < 1) return NULL;
 
