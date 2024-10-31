@@ -125,26 +125,49 @@ PEvent game_potential_turn(Game *g, int player, int x, int y) {
 	return good ? EV_GOOD_TURN : EV_BAD_TURN;
 }
 
-int game_set(Game *g, int player, int x, int y) {
+int *game_set(Game *g, int player, int x, int y) {
+	// array of acquired squares max(2), [0] = count
+	static int squares[5];
+	squares[0] = 0;
 	// validate game and player
-	if (!g || player < 0 || player > 1 || !is_turn_valid(g, x, y)) return 1;
+	if (!g || player < 0 || player > 1 || !is_turn_valid(g, x, y)) return NULL;
 
 	g->sticks[y][x] = player;
 	// check squares
 	if (y % 2 == 0) {
 		y = y / 2;
 		// under
-		if (count_square(g, x, y) == 4 && g->squares[y][x] == -1) g->squares[y][x] = player;
+		if (count_square(g, x, y) == 4 && g->squares[y][x] == -1) {
+			g->squares[y][x] = player;
+			squares[0]++;
+			squares[1] = x;
+			squares[2] = y;
+		}
 		// up
-		if (count_square(g, x, y-1) == 4 && g->squares[y-1][x] == -1) g->squares[y-1][x] = player;
+		if (count_square(g, x, y-1) == 4 && g->squares[y-1][x] == -1) {
+			g->squares[y-1][x] = player;
+			squares[squares[0]*2 + 1] = x;
+			squares[squares[0]*2 + 2] = y-1;
+			squares[0]++;
+		}
 	} else {
 		y = y / 2;
 		// right
-		if (count_square(g, x, y) == 4 && g->squares[y][x] == -1) g->squares[y][x] = player;
+		if (count_square(g, x, y) == 4 && g->squares[y][x] == -1) {
+			squares[0]++;
+			squares[1] = x;
+			squares[2] = y;
+			g->squares[y][x] = player;
+		}
 		// left
-		if (count_square(g, x-1, y) == 4 && g->squares[y][x-1] == -1) g->squares[y][x-1] = player;
+		if (count_square(g, x-1, y) == 4 && g->squares[y][x-1] == -1) {
+			g->squares[y][x-1] = player;
+			squares[squares[0]*2 + 1] = x-1;
+			squares[squares[0]*2 + 2] = y;
+			squares[0]++;
+		}
 	}
-	return 0;
+	return squares;
 }
 
 void game_free(Game *g) {

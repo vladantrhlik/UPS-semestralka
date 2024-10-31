@@ -169,6 +169,7 @@ int create_handler(Server *s, Player *p) {
 }
 
 int join_handler(Server *s, Player *p) {
+	static char name_buff[16];
 	char *name = strtok(NULL, END_DELIM);
 	if (!name) {
 		printf("No args\n");
@@ -223,20 +224,21 @@ int join_handler(Server *s, Player *p) {
 	p->game = g;
 
 	// update players of the game
+	sprintf(name_buff, "|%s", p->name);
 	if (!rejoin) {
 		if (g->p0) {
 			g->p0->state = transition(g->p0->state, EV_JOIN);
-			send_msg(g->p0, OP_JOIN, NULL);
+			send_msg(g->p0, OP_JOIN, name_buff);
 			g->p1 = p;
 		} else if (g->p1) {
 			g->p1->state = transition(g->p1->state, EV_JOIN);
-			send_msg(g->p1, OP_JOIN, NULL);
+			send_msg(g->p1, OP_JOIN, name_buff);
 			g->p0 = p;
 		}
 	} else {
 		// notify oponent about rejoin
-		if (g->p0 == p) send_msg(g->p1, OP_JOIN, NULL);
-		if (g->p1 == p) send_msg(g->p0, OP_JOIN, NULL);
+		if (g->p0 == p) send_msg(g->p1, OP_JOIN, name_buff);
+		if (g->p1 == p) send_msg(g->p0, OP_JOIN, name_buff);
 	}
 
 	if (rejoin) printf("Rejoin successfull\n");
@@ -247,7 +249,7 @@ int join_handler(Server *s, Player *p) {
 }
 
 int turn_handler(Server *s, Player *p) {
-	static char turn_buff[16];
+	static char buff[32];
 	// load args
 	char *x_str = strtok(NULL, DELIM);
 	char *y_str = strtok(NULL, END_DELIM);
@@ -304,26 +306,39 @@ int turn_handler(Server *s, Player *p) {
 	}
 
 	p->state = next;
-	game_set(g, player, x, y);
+	int *squares = game_set(g, player, x, y);
 
 	// send info to oponent
-	sprintf(turn_buff, "|%d|%d", x, y);
-	send_msg(op, TURN, turn_buff);
+	sprintf(buff, "|%d|%d", x, y);
+	send_msg(op, TURN, buff);
 
 	if (ev == EV_BAD_TURN) {
 		// switch turns if bad turn
 		if (p == g->p0) g->p1->state = ST_ON_TURN;
 		else g->p0->state = ST_ON_TURN;
 		send_msg(p, OK, NULL);
-		send_msg(op, YOUR_TURN, NULL);
+		send_msg(op, ON_TURN, NULL);
 	} else {
-		// check if not win
+		// send info about acquired squares
+		switch (squares[0]) {
+			case 0:
+				printf("Square acq, but not found in squares[]\n");
+				return 1;
+			case 1:
+				sprintf(buff, "|%d|%d", squares[1], squares[2]);
+				break;
+			case 2:
+				sprintf(buff, "|%d|%d|%d|%d", squares[1], squares[2], squares[3], squares[4]);
+				break;
+		}
+		send_msg(p, ACQ, buff);
+		send_msg(op, OP_ACQ, buff);
+
+		// check if win
 		int winner = is_game_finished(g);
 		if (winner > -1) {
 			send_msg(g->p0, winner == 0 ? WIN : LOSE, 0);
 			send_msg(g->p1, winner == 1 ? WIN : LOSE, 0);
-		} else {
-			send_msg(p, OK, "|ONTURN");
 		}
 	}
 	
