@@ -89,8 +89,9 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			Game *g = p->game;
 			if (g) {
 				// player was waiting in game alone -> delete game
-				if ((p == g->p0 && g->p1 && g->p1->state == ST_DISCONNECTED) ||
-					(p == g->p1 && g->p0 && g->p0->state == ST_DISCONNECTED)) {
+				if ((p == g->p0 && (!g->p1 || (g->p1 && g->p1->state == ST_DISCONNECTED))) ||
+					(p == g->p1 && (!g->p0 || (g->p0 && g->p0->state == ST_DISCONNECTED)))) {
+					//(p == g->p1 && g->p0 && g->p0->state == ST_DISCONNECTED)) {
 					printf("Removing game '%s'\n", g->name);
 					if (g->p0) g->p0->game = NULL;
 					if (g->p1) g->p1->game = NULL;

@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "structs.h"
+#include "game.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,7 +57,7 @@ int remove_game(Server *s, Game *g) {
 		return -1;
 	}
 
-	free(g);
+	game_free(g);
 	if (index < s->game_count - 1) {
 		// move last player to index
 		s->games[index] = s->games[s->game_count - 1];
