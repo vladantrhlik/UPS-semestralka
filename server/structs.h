@@ -64,6 +64,7 @@ typedef struct Gaym {
 	int on_turn;
 	int width, height; // number of squares
 	int **sticks;
+	int **squares;
 } Game;
 
 typedef struct {

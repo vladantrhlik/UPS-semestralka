@@ -55,19 +55,51 @@ Game *game_create(int width, int height, char *name, Player *p0) {
 			while (i >= 0) {
 				free(g->sticks[i]);
 				g--;
-				return NULL;
 			}
+			return NULL;
 		}
 		memset(g->sticks[i], -1, size * sizeof(int));
 	}
 
+	// squares
+	g->squares = malloc(sizeof(int*) * g->height);
+	if (!g) goto free_gs;
+	for (int y = 0; y < height; y++) {
+		g->squares[y] = malloc(sizeof(int) * g->width);
+		if (!g->squares[y]) {
+			y--;
+			while (y >= 0) {
+				free(g->squares[y]);
+				y--;
+			}
+			goto free_gs;
+		}
+		memset(g->squares[y], -1, sizeof(int) * g->width);
+	}
+
 	return g;
+
+free_gs:
+	for (int i = 0; i < row_count; i++) {
+		free(g->sticks[i]);
+	}
+	free(g->sticks);
+	free(g);
+	return NULL;
 }
 
 PEvent game_potential_turn(Game *g, int player, int x, int y) {
 	if (!g || player < 0 || player > 1 || !is_turn_valid(g, x, y)) return EV_NULL;
-	// TODO figure out based on value of square
-	return EV_BAD_TURN;
+	// get surrounding squares
+	int good = 0;
+	if (y % 2 == 0) {
+		y = y / 2 - 1;
+		if (count_square(g, x, y) == 3 || count_square(g, x, y + 1) == 3) good = 1;
+	} else {
+		y = (y - 1) / 2;
+		if (count_square(g, x, y) == 3 || count_square(g, x - 1, y) == 3) good = 1;
+	}
+	return good ? EV_GOOD_TURN : EV_BAD_TURN;
 }
 
 int game_set(Game *g, int player, int x, int y) {
@@ -75,6 +107,20 @@ int game_set(Game *g, int player, int x, int y) {
 	if (!g || player < 0 || player > 1 || !is_turn_valid(g, x, y)) return 1;
 
 	g->sticks[y][x] = player;
+	// check squares
+	if (y % 2 == 0) {
+		y = y / 2;
+		// under
+		if (count_square(g, x, y) == 4 && g->squares[y][x] == -1) g->squares[y][x] = player;
+		// up
+		if (count_square(g, x, y-1) == 4 && g->squares[y-1][x] == -1) g->squares[y-1][x] = player;
+	} else {
+		y = y / 2;
+		// right
+		if (count_square(g, x, y) == 4 && g->squares[y][x] == -1) g->squares[y][x] = player;
+		// left
+		if (count_square(g, x-1, y) == 4 && g->squares[y][x-1] == -1) g->squares[y][x-1] = player;
+	}
 	return 0;
 }
 
@@ -85,6 +131,11 @@ void game_free(Game *g) {
 	for (int y = 0; y < g->height * 2 + 1; y++) {
 		free(g->sticks[y]);
 	}
+	// free squares
+	for (int y = 0; y < g->height; y++) {
+		free(g->squares[y]);
+	}
+	free(g->squares);
 	free(g->sticks);
 	free(g);
 }
@@ -94,12 +145,18 @@ void game_print(Game *g) {
 
 	for (int y = 0; y < g->height * 2 + 1; y++) {
 		for (int x = 0; x < g->width + y % 2; x++) {
-			int sq = count_square(g, x, y/2);
 			int empty = g->sticks[y][x] == -1;
 
 			if (y % 2 == 0) printf(" %s", empty ? " " : "-");
+			else if (x < g->width) {
+				int sq = g->squares[y/2][x];
+				if (sq == -1) {
+					printf("%s×", empty ? " " : "|");
+				} else {
+					printf("%s%d", empty ? " " : "|", g->squares[y/2][x]);
+				}
+			}
 			// last cell without number
-			else if (x < g->width) printf("%s%d", empty ? " " : "|", sq);
 			else printf("%s", empty ? " " : "|");
 		}
 		printf("\n");
