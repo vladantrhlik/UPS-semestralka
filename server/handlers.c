@@ -247,6 +247,7 @@ int join_handler(Server *s, Player *p) {
 }
 
 int turn_handler(Server *s, Player *p) {
+	static char turn_buff[16];
 	// load args
 	char *x_str = strtok(NULL, DELIM);
 	char *y_str = strtok(NULL, END_DELIM);
@@ -278,6 +279,7 @@ int turn_handler(Server *s, Player *p) {
 	}
 
 	Game *g = p->game;
+	Player *op = g->p0 == p ? g->p1 : g->p0;
 	int player = g->p0 == p ? 0 : 1;
 
 	printf("%s turn: %d, %d\n", p->name, x, y);
@@ -304,19 +306,24 @@ int turn_handler(Server *s, Player *p) {
 	p->state = next;
 	game_set(g, player, x, y);
 
+	// send info to oponent
+	sprintf(turn_buff, "|%d|%d", x, y);
+	send_msg(op, TURN, turn_buff);
+
 	if (ev == EV_BAD_TURN) {
 		// switch turns if bad turn
 		if (p == g->p0) g->p1->state = ST_ON_TURN;
 		else g->p0->state = ST_ON_TURN;
 		send_msg(p, OK, NULL);
+		send_msg(op, YOUR_TURN, NULL);
 	} else {
 		// check if not win
 		int winner = is_game_finished(g);
 		if (winner > -1) {
-			send_msg(g->p0, 0, winner == 0 ? "WIN" : "LOSE");
-			send_msg(g->p1, 0, winner == 1 ? "WIN" : "LOSE");
+			send_msg(g->p0, winner == 0 ? WIN : LOSE, 0);
+			send_msg(g->p1, winner == 1 ? WIN : LOSE, 0);
 		} else {
-			send_msg(p, OK, "|CONTINUE");
+			send_msg(p, OK, "|ONTURN");
 		}
 	}
 	
