@@ -152,7 +152,7 @@ int create_handler(Server *s, Player *p) {
 	}
 	// malloc new game
 	
-	Game *g = game_create(3, 1, name, p);
+	Game *g = game_create(1, 1, name, p);
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");
@@ -339,6 +339,21 @@ int turn_handler(Server *s, Player *p) {
 		if (winner > -1) {
 			send_msg(g->p0, winner == 0 ? WIN : LOSE, 0);
 			send_msg(g->p1, winner == 1 ? WIN : LOSE, 0);
+			// reset states
+			PState next = transition(p->state, EV_GAME_END);
+			if (!next) {
+				printf("Something fucked up, null state\n");
+				return 1;
+			}
+			p->state = next;
+			next = transition(op->state, EV_GAME_END);
+			if (!next) {
+				printf("Something fucked up, null state\n");
+				return 1;
+			}
+			op->state = next;
+			// delete game
+			remove_game(s, g);
 		}
 	}
 	
