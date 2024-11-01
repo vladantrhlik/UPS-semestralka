@@ -69,7 +69,10 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				join_handler(s, p);
 			} else if (!strcmp(cmd, "TURN")) {
 				turn_handler(s, p);
+			} else if (!strcmp(cmd, "LEAVE")) {
+				leave_handler(s, p);
 			}
+
 		break;
 		case DISCONNECT:
 			p = find_connected_player(s, fd);

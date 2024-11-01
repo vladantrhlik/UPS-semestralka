@@ -220,30 +220,43 @@ int join_handler(Server *s, Player *p) {
 		send_msg(p, ERR, "1");
 		return 1;
 	}
-	p->state = next;
 	p->game = g;
+	send_msg(p, OK, NULL);
 
 	// update players of the game
 	sprintf(name_buff, "|%s", p->name);
 	if (!rejoin) {
+		// update state
+		p->state = next;
+		printf("Join successfull\n");
 		if (g->p0) {
 			g->p0->state = transition(g->p0->state, EV_JOIN);
 			send_msg(g->p0, OP_JOIN, name_buff);
+			send_msg(g->p0, ON_TURN, NULL);
 			g->p1 = p;
+			send_msg(g->p1, OP_TURN, NULL);
 		} else if (g->p1) {
 			g->p1->state = transition(g->p1->state, EV_JOIN);
 			send_msg(g->p1, OP_JOIN, name_buff);
+			send_msg(g->p1, ON_TURN, NULL);
 			g->p0 = p;
+			send_msg(g->p0, OP_TURN, NULL);
 		}
 	} else {
+		// update state
+		Player *op = g->p0 == p ? g->p1 : g->p0;
+		p->state = op->state == ST_ON_TURN ? ST_NO_TURN : ST_ON_TURN;
 		// notify oponent about rejoin
-		if (g->p0 == p) send_msg(g->p1, OP_JOIN, name_buff);
-		if (g->p1 == p) send_msg(g->p0, OP_JOIN, name_buff);
+		printf("Rejoin successfull\n");
+		if (g->p0 == p) {
+			send_msg(g->p1, OP_JOIN, name_buff);
+			send_msg(g->p0, p->state == ST_ON_TURN ? ON_TURN : OP_TURN, NULL);
+		}
+		if (g->p1 == p) {
+			send_msg(g->p0, OP_JOIN, name_buff);
+			send_msg(g->p1, p->state == ST_ON_TURN ? ON_TURN : OP_TURN, NULL);
+		}
 	}
-
-	if (rejoin) printf("Rejoin successfull\n");
-	else printf("Join successfull\n");
-	send_msg(p, OK, NULL);
 
 	return 0;
 }
@@ -357,5 +370,28 @@ int turn_handler(Server *s, Player *p) {
 		}
 	}
 	
+	return 0;
+}
+
+int leave_handler(Server *s, Player *p) {
+	// validate state
+	PState next = transition(p->state, EV_LEAVE);
+	if (!next) {
+		printf("Invalid state\n");
+		send_msg(p, ERR, NULL);
+		return 1;
+	} 
+
+	p->state = next;
+	Player *op = p->game->p0 == p ? p->game->p1 : p->game->p0;
+	if (op) {
+		send_msg(op, OP_DISCONNECT, NULL);
+	} else {
+		// remove game if not oponent
+		remove_game(s, p->game);
+	}
+	// inform oponent about leaving
+	send_msg(p, OK, NULL);
+
 	return 0;
 }

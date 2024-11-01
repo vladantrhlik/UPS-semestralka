@@ -27,4 +27,7 @@ int join_handler(Server *s, Player *p);
  * Handles TURN|x|y\n
  */
 int turn_handler(Server *s, Player *p);
+
+int leave_handler(Server *s, Player *p);
+
 #endif

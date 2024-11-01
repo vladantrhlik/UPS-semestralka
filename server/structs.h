@@ -23,7 +23,7 @@ typedef enum {
 } PState;
 
 // player events
-#define EVENT_COUNT 7
+#define EVENT_COUNT 8
 typedef enum {
 	EV_LOGIN,
 	EV_CREATE,
@@ -32,6 +32,7 @@ typedef enum {
 	EV_BAD_TURN,
 	EV_GAME_END,
 	EV_NULL,
+	EV_LEAVE
 } PEvent;
 
 // server events
