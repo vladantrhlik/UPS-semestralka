@@ -1,3 +1,2 @@
-add LEAVE to leave game
 add LOAD to load info about all hobbies
-add ON_TURN at the start of the game
+set game to null when player leaves/disconnectss
