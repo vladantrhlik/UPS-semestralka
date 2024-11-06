@@ -2,6 +2,7 @@ import pygame as pg
 import pygame_gui as pgui
 from scene import Scene
 from game import GameScene
+from consts import Msg
 
 class LobbyScene(Scene):
     def __init__(self, ud):
@@ -26,10 +27,16 @@ class LobbyScene(Scene):
 
     def fetch(self):
         # TODO: fetch all available lobbies
-        # run every X seconds / refresh button (?)
-        self.lobbies = {"martin": 0, "owo": 2, "lobby2": 4, "totoJeDlouhyNazevLobby": 5}
-        for i in range(ord('a'), ord('z')+1):
-            self.lobbies[chr(i)] = 42
+        self.socket.send("LOAD\n");
+        res = self.socket.recv().split("|")
+        if (res[0] == Msg.OK):
+            c = 0
+            for i in res[1:]:
+                self.lobbies[i] = c
+                c += 1
+
+        print(res)
+
 
     def process_event(self, event):
         super().process_event(event)
@@ -40,6 +47,14 @@ class LobbyScene(Scene):
                 self.connect()
 
     def connect(self):
+        lobby = self.lobby_list.get_single_selection()
+        # nothing selected
+        if (lobby == None): return
+        self.socket.send(f"JOIN|{lobby}\n")
+        res = self.socket.recv()
+        if (res == Msg.OK):
+            self.sm.set_scene(GameScene(self.user_data))
+        else:
+            print("Error while joining game")
         # TODO: check if room still exists
-        self.sm.set_scene(GameScene(self.user_data))
 

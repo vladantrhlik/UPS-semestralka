@@ -71,6 +71,8 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				turn_handler(s, p);
 			} else if (!strcmp(cmd, "LEAVE")) {
 				leave_handler(s, p);
+			} else if (!strcmp(cmd, "LOAD")) {
+				load_handler(s, p);
 			}
 
 		break;

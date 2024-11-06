@@ -4,6 +4,7 @@ import pygame_gui as pgui
 class Scene:
     def __init__(self, user_data):
         self.user_data = user_data
+        self.socket = user_data["socket"]
         self.ui_manager = pgui.UIManager(pg.display.get_window_size())
         self.ui_container = pgui.core.UIContainer(pg.Rect(0, 0, *pg.display.get_window_size()), manager=self.ui_manager)
         self.sm: SceneManager = None

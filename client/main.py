@@ -1,10 +1,11 @@
 import pygame as pg
 from game_data import GameData, Player
 from game_view import GameView
-from colors import Col
 from login import *
+from consts import *
 from scene import SceneManager
 from game import GameScene
+from mysocket import Socket
 
 pg.init()
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
@@ -13,8 +14,8 @@ clock = pg.time.Clock()
 # start game with login screen
 sm = SceneManager()
 
-user_data = {}
-sm.set_scene(LoginScene({}))
+user_data = {"socket": Socket("localhost", 10000)}
+sm.set_scene(LoginScene(user_data))
 #sm.set_scene(GameScene(user_data))
 
 running = True
