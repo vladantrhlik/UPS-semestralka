@@ -12,8 +12,10 @@ clock = pg.time.Clock()
 
 # start game with login screen
 sm = SceneManager()
-#sm.set_scene(LoginScene({}))
-sm.set_scene(GameScene({}))
+
+user_data = {}
+sm.set_scene(LoginScene({}))
+#sm.set_scene(GameScene(user_data))
 
 running = True
 while running:
