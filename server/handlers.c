@@ -395,3 +395,21 @@ int leave_handler(Server *s, Player *p) {
 
 	return 0;
 }
+
+int load_handler(Server *s, Player *p) {
+	// calculate max message length
+	int max_len = strlen("OK") + s->game_count * (MAX_NAME_LEN + 1) + 2;
+	char *buff = malloc(sizeof(char) * max_len);
+
+	memset(buff, 0, sizeof(char) * max_len);
+	for (int i = 0; i < s->game_count; i++) {
+		Game *g = s->games[i];
+		strcat(buff, DELIM);
+		strcat(buff, g->name);
+	}
+
+	send_msg(p, OK, buff);
+	free(buff);
+
+	return 0;
+}

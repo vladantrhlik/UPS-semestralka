@@ -30,4 +30,6 @@ int turn_handler(Server *s, Player *p);
 
 int leave_handler(Server *s, Player *p);
 
+int load_handler(Server *s, Player *p);
+
 #endif

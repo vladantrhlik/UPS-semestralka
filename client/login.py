@@ -2,6 +2,7 @@ import pygame as pg
 import pygame_gui as pgui
 from scene import Scene
 from lobby import LobbyScene
+from consts import Msg
 
 class LoginScene(Scene):
     def __init__(self, ud):
@@ -38,11 +39,20 @@ class LoginScene(Scene):
 
     def login(self):
         uname = self.uname_box.get_text()
+        msg = "" # err msg
+
         # validate uname (length between 3 and 32, only alpha numeric)
         if 3 <= len(uname) <= 32:
             self.user_data["uname"] = uname
-            self.sm.set_scene(LobbyScene(self.user_data))
+            self.socket.send(f"LOGIN|{uname}\n")
+            res = self.socket.recv()
+            if (res == Msg.OK):
+                self.sm.set_scene(LobbyScene(self.user_data))
+                return
+            else:
+                msg = Msg.txt(res)
         else:
-            self.ui_container.disable()
             msg = "Length of username must be between 3 and 32"
-            self.error(msg=msg, title="Login error")
+
+        self.ui_container.disable()
+        self.error(msg=msg, title="Login error")

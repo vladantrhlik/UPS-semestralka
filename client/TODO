@@ -1,0 +1,3 @@
+better messag and error detecting (enum?)
+sync max name lengths between client and server code
+add game listing cmds for server

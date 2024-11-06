@@ -14,6 +14,11 @@ class GameScene(Scene):
         super().draw(screen)
         self.game_view.draw(screen)
 
+    def update(self, delta_time):
+        super().update(delta_time)
+        res = self.socket.recv()
+        print(res)
+
     def calc_stick_pos(self, local_mouse_pos, tile):
         # get square coords
         sq = [i//tile for i in local_mouse_pos]

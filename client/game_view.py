@@ -1,7 +1,7 @@
 from game_data import *
 import pygame as pg
 from pygame import gfxdraw
-from colors import Col
+from consts import *
 
 class GameView:
     def __init__(self, game_data: GameData):
