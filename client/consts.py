@@ -16,6 +16,7 @@ class Msg:
     OP_TURN = "OP_TURN"
     OP_ACQ = "OP_ACQ"
     ACQ = "ACQ"
+    OP_JOIN = "OP_JOIN"
 
     msgs = {
         OK: "OK",

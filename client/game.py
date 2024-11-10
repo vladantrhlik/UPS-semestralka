@@ -8,12 +8,12 @@ from consts import Msg
 class GameScene(Scene):
     def __init__(self, user_data):
         super().__init__(user_data)
-        self.game_data = GameData(3, 3)
+        self.game_data = GameData(user_data, 3, 3)
         self.game_view = GameView(self.game_data)
 
         self.turning = False
         self.turn_coords = None
-        self.on_turn = False
+        self.user_data["on_turn"] = False
 
     def draw(self, screen):
         super().draw(screen)
@@ -21,8 +21,46 @@ class GameScene(Scene):
 
     def update(self, delta_time):
         super().update(delta_time)
-        #res = self.socket.recv()
-        #print(res)
+
+        res = self.socket.get_last_msg()
+        if res != None:
+            print(f"received: {res}")
+            if self.turning:
+                if res == Msg.OK:
+                    self.game_data.set_stick(*self.turn_coords, Player.ME)
+                    self.turning = False
+                else:
+                    print("error while turning")
+            if res.startswith("TURN"):
+                try:
+                    coords = [int(i) for i in res.split("|")[1:]]
+                    if len(coords) != 2:
+                        print("Invalid oponent coords")
+                    else:
+                        self.game_data.set_stick(*coords, Player.HIM)
+                except:
+                    print("Invalid oponent coords")
+            if res == Msg.ON_TURN:
+                print("on turn")
+                self.user_data["on_turn"] = True
+            if res == Msg.OP_TURN:
+                print("oponent on turn")
+                self.user_data["on_turn"] = False
+            if res.startswith(Msg.ACQ) or res.startswith(Msg.OP_ACQ):
+                # parse square data
+                s = res.split("|")[1:]
+                if len(s) % 2 != 0:
+                    print("Invalid ACQ square data")
+                else:
+                    try:
+                        s = [int(i) for i in s]
+                        for i in range(len(s) // 2):
+                            x, y = s[i*2], s[i*2 + 1]
+                            self.game_data.set_square(x, y, Player.ME if res.startswith(Msg.ACQ) else Player.HIM)
+                    except:
+                        print(f"Error while parsing ACQ coords")
+            if res.startswith(Msg.OP_JOIN):
+                self.user_data["oponent"] = res.split("|")[1]
 
     def calc_stick_pos(self, local_mouse_pos, tile):
         # get square coords
@@ -54,43 +92,6 @@ class GameScene(Scene):
         super().process_event(event)
         mouse_pos = list(pg.mouse.get_pos())
 
-        res = self.socket.get_last_msg()
-        if res != None:
-            print(f"received: {res}")
-            if self.turning:
-                if res == Msg.OK:
-                    self.game_data.set_stick(*self.turn_coords, Player.ME)
-                    self.turning = False
-                else:
-                    print("error while turning")
-            if res.startswith("TURN"):
-                try:
-                    coords = [int(i) for i in res.split("|")[1:]]
-                    if len(coords) != 2:
-                        print("Invalid oponent coords")
-                        return
-                    self.game_data.set_stick(*coords, Player.HIM)
-                except:
-                    print("Invalid oponent coords")
-            if res == Msg.ON_TURN:
-                print("on turn")
-                self.on_turn = True
-            if res == Msg.OP_TURN:
-                print("oponent on turn")
-                self.on_turn = False
-            if res.startswith(Msg.ACQ) or res.startswith(Msg.OP_ACQ):
-                # parse square data
-                s = res.split("|")[1:]
-                if len(s) % 2 != 0:
-                    print("Invalid ACQ square data")
-                    return
-                print(f"acq data: {s}")
-                try:
-                    for i in range(len(s) / 2):
-                        self.game_data.set_square(int(s[i*2]), int(s[i*2+1]), Player.ME if res.startswith(Msg.ACQ) else Player.HIM)
-                except:
-                    print("Error while parsing ACQ coords")
-
         mouse_pos[0] -= self.game_view.off_x
         mouse_pos[1] -= self.game_view.off_y
         tile = self.game_view.tile
@@ -101,12 +102,12 @@ class GameScene(Scene):
 
         coords = self.calc_stick_pos(mouse_pos, tile)
 
-        if self.on_turn:
+        if self.user_data["on_turn"]:
             self.game_view.preview_coords = coords
         else:
             self.game_view.preview_coords = [-1, -1]
 
-        if event.type == pg.MOUSEBUTTONDOWN and self.on_turn:
+        if event.type == pg.MOUSEBUTTONDOWN and self.user_data["on_turn"]:
             self.socket.send(f"TURN|{coords[0]}|{coords[1]}\n")
             self.turn_coords = coords
             self.turning = True
