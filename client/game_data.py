@@ -6,9 +6,10 @@ class Player(Enum):
     HIM = 2
 
 class GameData:
-    def __init__(self, width: int, height: int):
+    def __init__(self, user_data, width: int, height: int):
         self.w = width
         self.h = height
+        self.user_data = user_data
 
         # even ... horizontal (width)
         # odd ... vertical (width + 1)

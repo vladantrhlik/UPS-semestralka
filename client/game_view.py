@@ -15,6 +15,8 @@ class GameView:
         self.off_x, self.off_y = 0, 0
         self.preview_coords = [-1, -1]
 
+        self.font = pg.font.SysFont('Comic Sans MS', 30)
+
     def draw_circle(self, surface, x, y, radius, color):
         gfxdraw.aacircle(surface, x, y, radius, color)
         gfxdraw.filled_circle(surface, x, y, radius, color)
@@ -31,6 +33,16 @@ class GameView:
 
         self.off_x = int((w - self.game_data.w * self.tile) / 2)
         self.off_y = int((h - self.game_data.h * self.tile) / 2)
+
+        # draw squares
+        for y in range(self.game_data.h):
+            for x in range(self.game_data.w):
+                val = self.game_data.square_data[y][x]
+                if val == Player.NONE: continue
+                col = Col.ENEMY if val == Player.HIM else Col.PLAYER
+                col = [min(255, i + 128) for i in col]
+                pg.draw.rect(screen, col,
+                             pg.Rect(self.off_x + x*tile, self.off_y + y*tile, tile, tile))
 
         # draw sticks
         for y in range(len(self.game_data.stick_data)):
@@ -64,3 +76,9 @@ class GameView:
                 # pg.draw.circle(screen, (0,0,0),
                 #            (self.off_x + x * self.tile, self.off_y + y * self.tile), self.dot_radius)
                 self.draw_circle(screen, self.off_x + x * self.tile, self.off_y + y * self.tile, radius, Col.DOT)
+
+        # print userdata
+        data = "\n".join([f"{i}: {self.game_data.user_data[i]}" for i in self.game_data.user_data.keys()])
+        text_surface = self.font.render(data, False, (0, 0, 0))
+        screen.blit(text_surface, (0,0))
+
