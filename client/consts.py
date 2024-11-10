@@ -14,6 +14,8 @@ class Msg:
     ERR5 = "ERR5"
     ON_TURN = "ON_TURN"
     OP_TURN = "OP_TURN"
+    OP_ACQ = "OP_ACQ"
+    ACQ = "ACQ"
 
     msgs = {
         OK: "OK",

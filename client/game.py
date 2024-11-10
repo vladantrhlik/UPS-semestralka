@@ -73,9 +73,23 @@ class GameScene(Scene):
                 except:
                     print("Invalid oponent coords")
             if res == Msg.ON_TURN:
+                print("on turn")
                 self.on_turn = True
             if res == Msg.OP_TURN:
-                self.op_turn = False
+                print("oponent on turn")
+                self.on_turn = False
+            if res.startswith(Msg.ACQ) or res.startswith(Msg.OP_ACQ):
+                # parse square data
+                s = res.split("|")[1:]
+                if len(s) % 2 != 0:
+                    print("Invalid ACQ square data")
+                    return
+                print(f"acq data: {s}")
+                try:
+                    for i in range(len(s) / 2):
+                        self.game_data.set_square(int(s[i*2]), int(s[i*2+1]), Player.ME if res.startswith(Msg.ACQ) else Player.HIM)
+                except:
+                    print("Error while parsing ACQ coords")
 
         mouse_pos[0] -= self.game_view.off_x
         mouse_pos[1] -= self.game_view.off_y
