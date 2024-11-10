@@ -325,14 +325,17 @@ int turn_handler(Server *s, Player *p) {
 	sprintf(buff, "|%d|%d", x, y);
 	send_msg(op, TURN, buff);
 
+	send_msg(p, OK, NULL);
+
 	if (ev == EV_BAD_TURN) {
 		// switch turns if bad turn
 		if (p == g->p0) g->p1->state = ST_ON_TURN;
 		else g->p0->state = ST_ON_TURN;
-		send_msg(p, OK, NULL);
 		send_msg(p, OP_TURN, NULL);
 		send_msg(op, ON_TURN, NULL);
 	} else {
+		send_msg(p, ON_TURN, NULL);
+		send_msg(op, OP_TURN, NULL);
 		// send info about acquired squares
 		switch (squares[0]) {
 			case 0:
