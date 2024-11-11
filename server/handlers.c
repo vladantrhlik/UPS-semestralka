@@ -169,7 +169,7 @@ int create_handler(Server *s, Player *p) {
 }
 
 int join_handler(Server *s, Player *p) {
-	static char name_buff[16];
+	static char name_buff[16], op_name_buff[16];
 	char *name = strtok(NULL, END_DELIM);
 	if (!name) {
 		printf("No args\n");
@@ -225,6 +225,8 @@ int join_handler(Server *s, Player *p) {
 
 	// update players of the game
 	sprintf(name_buff, "|%s", p->name);
+	sprintf(op_name_buff, "|%s", g->p0 ? g->p0->name : g->p1->name);
+
 	if (!rejoin) {
 		// update state
 		p->state = next;
@@ -234,12 +236,14 @@ int join_handler(Server *s, Player *p) {
 			send_msg(g->p0, OP_JOIN, name_buff);
 			send_msg(g->p0, ON_TURN, NULL);
 			g->p1 = p;
+			send_msg(g->p1, OP_JOIN, op_name_buff);
 			send_msg(g->p1, OP_TURN, NULL);
 		} else if (g->p1) {
 			g->p1->state = transition(g->p1->state, EV_JOIN);
 			send_msg(g->p1, OP_JOIN, name_buff);
 			send_msg(g->p1, ON_TURN, NULL);
 			g->p0 = p;
+			send_msg(g->p1, OP_JOIN, op_name_buff);
 			send_msg(g->p0, OP_TURN, NULL);
 		}
 	} else {
@@ -250,10 +254,12 @@ int join_handler(Server *s, Player *p) {
 		printf("Rejoin successfull\n");
 		if (g->p0 == p) {
 			send_msg(g->p1, OP_JOIN, name_buff);
+			send_msg(g->p0, OP_JOIN, op_name_buff);
 			send_msg(g->p0, p->state == ST_ON_TURN ? ON_TURN : OP_TURN, NULL);
 		}
 		if (g->p1 == p) {
 			send_msg(g->p0, OP_JOIN, name_buff);
+			send_msg(g->p1, OP_JOIN, op_name_buff);
 			send_msg(g->p1, p->state == ST_ON_TURN ? ON_TURN : OP_TURN, NULL);
 		}
 	}
