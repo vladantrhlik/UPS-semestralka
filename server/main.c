@@ -73,6 +73,8 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				leave_handler(s, p);
 			} else if (!strcmp(cmd, "LOAD")) {
 				load_handler(s, p);
+			} else if (!strcmp(cmd, "SYNC")) {
+				sync_handler(s, p);
 			}
 
 		break;

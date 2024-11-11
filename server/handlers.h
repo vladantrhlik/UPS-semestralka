@@ -32,4 +32,10 @@ int leave_handler(Server *s, Player *p);
 
 int load_handler(Server *s, Player *p);
 
+/**
+ * Sync game state -> OK|w|h|sticks|squares\n
+ *
+ */
+int sync_handler(Server *s, Player *p);
+
 #endif
