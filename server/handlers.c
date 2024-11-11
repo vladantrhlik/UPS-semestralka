@@ -225,7 +225,7 @@ int join_handler(Server *s, Player *p) {
 
 	// update players of the game
 	sprintf(name_buff, "|%s", p->name);
-	sprintf(op_name_buff, "|%s", g->p0 ? g->p0->name : g->p1->name);
+	sprintf(op_name_buff, "|%s", (g->p0 && g->p0 != p) ? g->p0->name : g->p1->name);
 
 	if (!rejoin) {
 		// update state
