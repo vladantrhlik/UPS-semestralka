@@ -423,3 +423,55 @@ int load_handler(Server *s, Player *p) {
 
 	return 0;
 }
+
+int sync_handler(Server *s, Player *p) {
+	if (!p->game) {
+		send_msg(p, ERR, "4");
+		return 0;
+	}
+	Game *g = p->game;
+	// calculate data length
+	int square_len = (g->width - 1) * (g->height - 1);
+	int delim_len = 6;
+	int size_len = 4;
+	int sticks_len = (g->width + 1) * (g->height + 1); // approx
+	int len = square_len + delim_len + size_len + sticks_len;
+
+	char *msgbuff = malloc(sizeof(char) * len);
+	if (!msgbuff) {
+		send_msg(p, ERR, "1");
+		return 0;
+	}
+	memset(msgbuff, 0, sizeof(char) * len);
+	char *buff = malloc(sizeof(char) * 32);
+	if (!buff) {
+		send_msg(p, ERR, "1");
+		free(msgbuff);
+		return 0;
+	}
+	memset(buff, 0, sizeof(char) * 32);
+
+	// dimensions
+	sprintf(buff, "|%d|%d|", g->width, g->height);
+	strcat(msgbuff, buff);
+	// stick data
+	for (int y = 0; y < (g->height - 1) * 2 + 1; y++) {
+		for (int x = 0; x < (g->width - 1) + y % 2; x++) {
+			int val = g->sticks[y][x] + 1;
+			sprintf(buff, "%d", val);
+			strcat(msgbuff, buff);
+		}
+	}
+	strcat(msgbuff, "|");
+	// square data
+	for (int y = 0; y < g->height - 1; y++) {
+		for (int x = 0; x < g->width - 1; x++) {
+			int val = g->squares[y][x] + 1;
+			sprintf(buff, "%d", val);
+			strcat(msgbuff, buff);
+		}
+	}
+
+	send_msg(p, OK, msgbuff);
+	return 0;
+}
