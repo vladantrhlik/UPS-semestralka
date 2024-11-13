@@ -17,6 +17,10 @@ class GameData:
         self.stick_data = [[Player.NONE for x in range(width + y % 2)] for y in range(height * 2 + 1)]
         # width * height matrix
         self.square_data = [[Player.NONE for i in range(width)] for j in range(height)]
+        self.score = {
+                Player.ME: 0,
+                Player.HIM: 0
+        }
 
     def set_square(self, x: int, y: int, val: Player):
         # validate coordinates
@@ -24,6 +28,7 @@ class GameData:
             print(f"error: invalid square coordinates [{x}, {y}]")
             return
         self.square_data[y][x] = val;
+        if val != Player.NONE: self.score[val] += 1
 
     def set_stick(self, x: int, y: int, val: Player):
         # validate coordinates

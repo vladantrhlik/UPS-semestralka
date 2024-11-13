@@ -44,19 +44,11 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 		return 1;
 	}
 
-	// validate nickname (only alphanumeric chars) + _; length
-	int len = strlen(name);
-	if (len > MAX_NAME_LEN) {
+	// validate nickname
+	if (!is_name_valid(name)) {
 		send_msg(p, ERR, "1");
 		printf("Invalid nickname\n");
 		return 1;
-	}
-	for (int i = 0; i < len; i++) {
-		if (!isalnum(name[i]) && name[i] != '_') {
-			send_msg(p, ERR, "1");
-			printf("Invalid nickname\n");
-			return 1;
-		}
 	}
 
 	// TODO: validate if its legal to login (state machine?)
@@ -106,18 +98,10 @@ int create_handler(Server *s, Player *p) {
 	}
 
 	// validate name
-	int len = strlen(name);
-	if (len > MAX_NAME_LEN) {
-		printf("Name too long\n");
+	if (!is_name_valid(name)) {
+		printf("Invalid name\n");
 		send_msg(p, ERR, "1");
 		return 1;
-	}
-	for (int i = 0; i < len; i++) {
-		if (!isalnum(name[i])) {
-	  		printf("Invalid name\n");
-			send_msg(p, ERR, "1");
-	  		return 1;
-		}
 	}
 
 	// check if game with same name already exists

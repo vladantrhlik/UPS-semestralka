@@ -21,6 +21,7 @@ class Scene:
         if event.type == pgui.UI_WINDOW_CLOSE:
             if event.ui_element == self.err_popup:
                 self.ui_container.enable()
+                self.err_popup = None
 
     def draw(self, screen):
         self.ui_manager.draw_ui(screen)

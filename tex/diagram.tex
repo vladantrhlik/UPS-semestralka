@@ -36,8 +36,8 @@
 
 \subsection*{Načtení všech lobby}
 \begin{itemize}
-	\item \textbf{Client:} \texttt{LOAD\_LOBBY}
-	\item \textbf{Server:} \texttt{OK|<N>|<lobby1-name>|<lobby2-name>|...|<lobbyN-name>}
+	\item \textbf{Client:} \texttt{LOAD}
+	\item \textbf{Server:} \texttt{OK|<lobby1-name>|<lobby2-name>|...|<lobbyN-name>}
 \end{itemize}
 
 \subsection*{Vytvoření lobby}
@@ -60,7 +60,7 @@
 
 \subsection*{Oponent se odpojil}
 \begin{itemize}
-	\item \textbf{Server:} \texttt{OP\_LEFT}
+	\item \textbf{Server:} \texttt{OP\_LEAVE}
 	\item \textbf{Client:} \texttt{OK / ERR<4>}
 \end{itemize}
 
@@ -100,6 +100,13 @@
 	\item \textbf{Client, Server:} \texttt{OK}
 \end{itemize}
 
+\subsection*{Synchronizace hry}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{SYNC}
+	\item \textbf{Server:} \texttt{OK|<w>|<h>|<stick-data>|<square-data> / ERR<4>}
+	\\ data o hře budou reprezentována čísly 0-2, kde 0 je prázdné místo, 1 hráč, který žádá o SYNC a 2 jeho oponent
+\end{itemize}
+
 \section{Error kódy}
 \begin{itemize}
 	\item \texttt{1} -- invalid
@@ -107,6 +114,14 @@
 	\item \texttt{3} -- player not on turn
 	\item \texttt{4} -- player not in game
 	\item \texttt{5} -- already in game
+\end{itemize}
+
+\section{Omezení}
+\subsection{Názvy}
+\begin{itemize}
+	\item min délka \textbf{3}
+	\item max délka \textbf{12}
+	\item obsahují pouze '\textbf{a-zA-Z0-9\_}'
 \end{itemize}
 
 \section{Diagram}
