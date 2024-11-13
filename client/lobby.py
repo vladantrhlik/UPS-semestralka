@@ -3,6 +3,7 @@ import pygame_gui as pgui
 from scene import Scene
 from game import GameScene
 from consts import Msg
+from consts import NameChecker
 
 class LobbyScene(Scene):
     def __init__(self, ud):
@@ -103,12 +104,15 @@ class LobbyScene(Scene):
         lobby = self.lobby_list.get_single_selection()
         new_game = self.game_input.get_text()
 
-        if len(new_game) > 0:
+        if NameChecker.is_name_valid(new_game):
             self.socket.send(f"CREATE|{new_game}\n")
         elif (lobby != None):
             self.socket.send(f"JOIN|{lobby}\n")
         else:
-            print("no lobby selected")
+            if len(new_game) > 0:
+                self.error(msg="Invalid game name")
+            else:
+                self.error(msg="No game selected")
             return
 
         self.conn_but.disable()
