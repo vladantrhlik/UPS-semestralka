@@ -2,7 +2,7 @@ import pygame_gui as pgui
 import pygame as pg
 from scene import Scene
 from lobby import LobbyScene
-from consts import Msg
+from consts import Msg, NameChecker
 
 class LoginScene(Scene):
     def __init__(self, ud):
@@ -20,10 +20,23 @@ class LoginScene(Scene):
                                             container = self.ui_container,
                                             anchors={'center': 'center'})
         # restrict input characters
-        self.uname_box.set_allowed_characters('alpha_numeric')
+        # self.uname_box.set_allowed_characters('alpha_numeric')
 
         self.err_popup = None
 
+    def update(self, delta_time):
+        super().update(delta_time)
+
+        # handle login response
+        res = self.socket.peek_last_msg()
+        if res != None:
+            print(f"login msg: {res}")
+            if (res == Msg.OK):
+                self.sm.set_scene(LobbyScene(self.user_data))
+            elif res.startswith(Msg.ERR):
+                print(f"error while login: {res}")
+            self.socket.get_last_msg()
+            self.ui_container.enable()
 
     def process_event(self, event):
         super().process_event(event)
@@ -36,29 +49,19 @@ class LoginScene(Scene):
             on_focus = self.ui_manager.get_focus_set()
             if on_focus != None and self.uname_box in on_focus:
                 self.login()
-        # handle login response
-        res = self.socket.get_last_msg()
-        if res != None:
-            if (res == Msg.OK):
-                self.sm.set_scene(LobbyScene(self.user_data))
-                return
-            else:
-                msg = Msg.txt(res)
-                self.ui_container.disable()
-                self.error(msg=msg, title="Login error")
 
     def login(self):
         uname = self.uname_box.get_text()
         msg = "" # err msg
 
         # validate uname (length between 3 and 32, only alpha numeric)
-        if 3 <= len(uname) <= 32:
+        if NameChecker.is_name_valid(uname):
             self.user_data["uname"] = uname
             self.socket.send(f"LOGIN|{uname}\n")
             self.ui_container.disable()
             return
         else:
-            msg = "Length of username must be between 3 and 32"
+            msg = f"Length of username must be between {NameChecker.MIN_NAME_LEN} and {NameChecker.MAX_NAME_LEN} and can only contain alphanumeric characters + '_'" 
 
         self.ui_container.disable()
         self.error(msg=msg, title="Login error")

@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "structs.h"
 #include "game.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -110,4 +111,17 @@ int send_msg(Player *p, MsgType type, char *msg) {
 	printf("to %s: %s\n", p->name, buffer);
 	send(p->fd, buffer, strlen(buffer), 0);
 	return 0;
+}
+
+int is_name_valid(char* name) {
+	int len = strlen(name);
+	if (len > MAX_NAME_LEN || len < MIN_NAME_LEN) {
+		return 0;
+	}
+	for (int i = 0; i < len; i++) {
+		if (!isalnum(name[i]) && name[i] != '_') {
+			return 0;
+		}
+	}
+	return 1;
 }

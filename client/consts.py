@@ -1,22 +1,41 @@
+class NameChecker:
+    MIN_NAME_LEN = 3
+    MAX_NAME_LEN = 12
+
+    def is_name_valid(name: str) -> bool:
+        if len(name) < 3 or len(name) > 12: return False
+
+        for c in name:
+            if (not c.isalnum() or not c.isascii()) and c != "_":
+                return False
+
+        return True
 
 class Col:
-    PLAYER = (0,0,255)
-    ENEMY = (255,0,0)
+    PLAYER = (58, 224, 208)
+    ENEMY = (219, 55, 99)
+    PREVIEW = (253, 255, 122)
     BACKGROUND = [232]*3
     DOT = (0,0,0)
+    BAR = [27]*3
+    FONT = [255]*3
 
 class Msg:
     OK = "OK"
+    ERR = "ERR"
     ERR1 = "ERR1"
     ERR2 = "ERR2"
     ERR3 = "ERR3"
     ERR4 = "ERR4"
     ERR5 = "ERR5"
+    TURN = "TURN"
     ON_TURN = "ON_TURN"
     OP_TURN = "OP_TURN"
+    OP_LEAVE = "OP_LEAVE"
     OP_ACQ = "OP_ACQ"
     ACQ = "ACQ"
     OP_JOIN = "OP_JOIN"
+    SYNC = "SYNC"
 
     msgs = {
         OK: "OK",

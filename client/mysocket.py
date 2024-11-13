@@ -54,6 +54,12 @@ class Socket():
 
         self.sock.close()       
 
+    def peek_last_msg(self):
+        if self.msg_queue.empty():
+            return None
+        else:
+            return self.msg_queue.queue[0]
+
     def get_last_msg(self):
         if self.msg_queue.empty():
             return None

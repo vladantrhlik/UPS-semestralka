@@ -40,9 +40,47 @@ class LobbyScene(Scene):
         self.fetch()
 
     def fetch(self):
+        if self.connecting: return
+
         self.socket.send("LOAD\n");
         self.fetching = True
         self.rfrsh_but.disable()
+
+    def update(self, delta_time):
+        super().update(delta_time)
+        # handle fetching response
+        res = self.socket.peek_last_msg()
+        if res == None: return
+
+        print(f"lobby msg: {res}")
+        # handle fetching response
+        if self.fetching:
+            res = res.split("|")
+            if (res[0] == Msg.OK):
+                c = 0
+                for i in res[1:]:
+                    self.lobbies[i] = c
+                    c += 1
+
+                self.lobby_list.set_item_list(res[1:])
+                self.rfrsh_but.enable()
+            else:
+                print(f"error while fetching: {res}")
+
+            self.rfrsh_but.enable()
+            self.fetching = False
+            self.socket.get_last_msg()
+
+        # handle connecting response
+        if self.connecting:
+            if (res == Msg.OK):
+                self.sm.set_scene(GameScene(self.user_data))
+            else:
+                print(f"error while connecting: {res}")
+
+            self.connecting = False
+            self.socket.get_last_msg()
+            self.conn_but.enable()
 
     def process_event(self, event):
         super().process_event(event)
@@ -53,35 +91,15 @@ class LobbyScene(Scene):
                 self.connect()
             if event.ui_element == self.rfrsh_but:
                 self.fetch()
-
-        # handle fetching response
-        res = self.socket.get_last_msg()
-        if res == None: return
-
-        print(f"msg: {res}")
-
-        if self.fetching:
-            res = res.split("|")
-            if (res[0] == Msg.OK):
-                c = 0
-                for i in res[1:]:
-                    self.lobbies[i] = c
-                    c += 1
-
-                self.lobby_list.set_item_list(res[1:])
-            else:
-                print(f"error while fetching: {res}")
-            self.fetching = False
-            self.rfrsh_but.enable()
-        if self.connecting:
-            if (res == Msg.OK):
-                self.sm.set_scene(GameScene(self.user_data))
-            else:
-                print(f"error while connecting: {res}")
-                self.conn_but.enable()
-            self.connecting = False
+        # connect when enter is pressed
+        if event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
+            on_focus = self.ui_manager.get_focus_set()
+            if on_focus != None:
+                self.connect()
 
     def connect(self):
+        if self.fetching: return
+
         lobby = self.lobby_list.get_single_selection()
         new_game = self.game_input.get_text()
 

@@ -12,8 +12,12 @@ class GameScene(Scene):
         self.game_view = GameView(self.game_data)
 
         self.turning = False
+        self.syncing = False;
+
         self.turn_coords = None
         self.user_data["on_turn"] = False
+    
+        self.start_sync()
 
     def draw(self, screen):
         super().draw(screen)
@@ -22,31 +26,18 @@ class GameScene(Scene):
     def update(self, delta_time):
         super().update(delta_time)
 
-        res = self.socket.get_last_msg()
+        res = self.socket.peek_last_msg()
         if res != None:
             print(f"received: {res}")
-            if self.turning:
-                if res == Msg.OK:
-                    self.game_data.set_stick(*self.turn_coords, Player.ME)
-                    self.turning = False
-                else:
-                    print("error while turning")
-            if res.startswith("TURN"):
-                try:
-                    coords = [int(i) for i in res.split("|")[1:]]
-                    if len(coords) != 2:
-                        print("Invalid oponent coords")
-                    else:
-                        self.game_data.set_stick(*coords, Player.HIM)
-                except:
-                    print("Invalid oponent coords")
             if res == Msg.ON_TURN:
                 print("on turn")
                 self.user_data["on_turn"] = True
-            if res == Msg.OP_TURN:
+                res = self.socket.get_last_msg()
+            elif res == Msg.OP_TURN:
                 print("oponent on turn")
                 self.user_data["on_turn"] = False
-            if res.startswith(Msg.ACQ) or res.startswith(Msg.OP_ACQ):
+                res = self.socket.get_last_msg()
+            elif res.startswith(Msg.ACQ) or res.startswith(Msg.OP_ACQ):
                 # parse square data
                 s = res.split("|")[1:]
                 if len(s) % 2 != 0:
@@ -59,8 +50,46 @@ class GameScene(Scene):
                             self.game_data.set_square(x, y, Player.ME if res.startswith(Msg.ACQ) else Player.HIM)
                     except:
                         print(f"Error while parsing ACQ coords")
-            if res.startswith(Msg.OP_JOIN):
+                res = self.socket.get_last_msg()
+            elif res.startswith(Msg.OP_JOIN):
                 self.user_data["oponent"] = res.split("|")[1]
+                res = self.socket.get_last_msg()
+            elif res.startswith(Msg.OP_LEAVE):
+                self.user_data["oponent"] = "left :("
+                res = self.socket.get_last_msg()
+
+            # handle turning response
+            elif self.turning:
+                if res == Msg.OK:
+                    self.game_data.set_stick(*self.turn_coords, Player.ME)
+                    self.turning = False
+                else:
+                    print(f"game error: {res}")
+                res = self.socket.get_last_msg()
+                return
+            # handle syncing
+            elif self.syncing:
+                if res.startswith(Msg.OK):
+                    self.syncing = False
+                    self.sync(res)
+                else:
+                    print(f"sync error: {res}")
+                self.socket.get_last_msg()
+
+            # handle incoming messages
+            elif res.startswith(Msg.TURN):
+                try:
+                    coords = [int(i) for i in res.split("|")[1:]]
+                    if len(coords) != 2:
+                        print("Invalid oponent coords")
+                    else:
+                        self.game_data.set_stick(*coords, Player.HIM)
+                except:
+                    print("Invalid oponent coords")
+                res = self.socket.get_last_msg()
+            else:
+                print(f"Unhandled message: {res}")
+                self.socket.get_last_msg()
 
     def calc_stick_pos(self, local_mouse_pos, tile):
         # get square coords
@@ -87,6 +116,42 @@ class GameScene(Scene):
                 coords = [sq[0], (sq[1]+1)*2]
 
         return coords
+
+    def start_sync(self):
+        if self.turning: return
+        self.socket.send(f"SYNC\n")
+        self.syncing = True
+
+    def sync(self, data: str):
+        print(f"syncing to: {data}")
+
+        data_conv = {
+                0: Player.NONE,
+                1: Player.ME,
+                2: Player.HIM
+        }
+
+        try:
+            data = data.split("|")[1:]
+            w, h = [int(i)-1 for i in data[:2]]
+
+            # stick data
+            sticks = [int(i) for i in list(data[2])]
+            pos = 0
+            for y in range(h*2+1):
+                for x in range(w + y%2):
+                    self.game_data.set_stick(x, y, data_conv[sticks[pos]])
+                    pos += 1
+
+            # square data
+            squares = [int(i) for i in list(data[3])]
+            pos = 0
+            for y in range(h):
+                for x in range(w):
+                    self.game_data.set_square(x, y, data_conv[squares[pos]])
+                    pos += 1
+        except:
+            print("error while parsing sync data")
 
     def process_event(self, event):
         super().process_event(event)
