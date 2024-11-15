@@ -58,6 +58,7 @@ Game *game_create(int width, int height, char *name, Player *p0) {
 	g->p0 = p0;
 	g->p1 = NULL;
 	g->on_turn = 0;
+	g->active_players = 1;
 
 	strcpy(g->name, name);
 
