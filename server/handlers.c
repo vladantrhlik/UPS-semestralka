@@ -136,7 +136,8 @@ int create_handler(Server *s, Player *p) {
 	}
 	// malloc new game
 	
-	Game *g = game_create(4, 4, name, p);
+	// Game *g = game_create(4, 4, name, p);
+	Game *g = game_create(1, 1, name, p);
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");
@@ -360,7 +361,7 @@ int turn_handler(Server *s, Player *p) {
 			}
 			op->state = next;
 			// delete game
-			remove_game(s, g);
+			// remove_game(s, g);
 		}
 	}
 	
