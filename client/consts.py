@@ -36,6 +36,8 @@ class Msg:
     ACQ = "ACQ"
     OP_JOIN = "OP_JOIN"
     SYNC = "SYNC"
+    WIN = "WIN"
+    LOSE = "LOSE"
 
     msgs = {
         OK: "OK",

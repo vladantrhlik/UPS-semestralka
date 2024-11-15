@@ -84,6 +84,10 @@ class LobbyScene(Scene):
             self.connecting = False
             self.conn_but.enable()
 
+        if res == self.socket.peek_last_msg():
+            print(f"Lobby: unhandled message: {res}")
+            self.socket.get_last_msg()
+
     def process_event(self, event):
         super().process_event(event)
         # connect button press

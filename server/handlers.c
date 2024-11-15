@@ -136,8 +136,8 @@ int create_handler(Server *s, Player *p) {
 	}
 	// malloc new game
 	
-	// Game *g = game_create(4, 4, name, p);
-	Game *g = game_create(1, 1, name, p);
+	Game *g = game_create(4, 4, name, p);
+	//Game *g = game_create(1, 1, name, p);
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");
@@ -320,13 +320,15 @@ int turn_handler(Server *s, Player *p) {
 
 	if (ev == EV_BAD_TURN) {
 		// switch turns if bad turn
-		if (p == g->p0) g->p1->state = ST_ON_TURN;
-		else g->p0->state = ST_ON_TURN;
 		send_msg(p, OP_TURN, NULL);
-		send_msg(op, ON_TURN, NULL);
+		if (transition(op->state, EV_ON_TURN)) {
+			op->state = ST_ON_TURN;
+			send_msg(op, ON_TURN, NULL);
+		}
 	} else {
 		send_msg(p, ON_TURN, NULL);
-		send_msg(op, OP_TURN, NULL);
+		//send_msg(op, OP_TURN, NULL);
+		if (transition(op->state, EV_NO_TURN)) send_msg(op, OP_TURN, NULL);
 		// send info about acquired squares
 		switch (squares[0]) {
 			case 0:
