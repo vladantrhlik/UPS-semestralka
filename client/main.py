@@ -18,7 +18,9 @@ sm = SceneManager()
 
 user_data = {"socket": Socket("localhost", 10000),
              "oponent": None,
-             "on_turn": False}
+             "on_turn": False,
+             "in_game": False,
+             "last_game_win": False}
 #sm.set_scene(LoginScene(user_data))
 #sm.set_scene(GameScene(user_data))
 sm.set_scene(SceneType.LOGIN, user_data)

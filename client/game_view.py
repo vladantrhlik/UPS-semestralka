@@ -109,8 +109,14 @@ class GameView:
         pg.draw.rect(screen, my_bg, pg.Rect(0, h - self.bar_height, w / 2, self.bar_height))
         pg.draw.rect(screen, other_bg, pg.Rect(w / 2, h - self.bar_height, w / 2, self.bar_height))
         # nicknames
-        my_nick, my_nick_rect = self.get_font_n_rect(self.game_data.user_data["uname"], my_font)
-        other_nick, other_nick_rect = self.get_font_n_rect(self.game_data.user_data["oponent"] if is_op else "", other_font)
+        my_nick_txt = self.game_data.user_data["uname"]
+        other_nick_txt = self.game_data.user_data["oponent"] if is_op else ""
+        if not self.game_data.user_data["in_game"]:
+            my_nick_txt += " " + ("(WIN)" if self.game_data.user_data["last_game_win"] else "(LOSE)")
+            other_nick_txt += " " + ("(LOSE)" if self.game_data.user_data["last_game_win"] else "(WIN)")
+
+        my_nick, my_nick_rect = self.get_font_n_rect(my_nick_txt, my_font)
+        other_nick, other_nick_rect = self.get_font_n_rect(other_nick_txt if is_op else "", other_font)
         # render to screen
         y_off = (self.bar_height - my_nick_rect[1]) / 2
         screen.blit(my_nick, (self.bar_x_pad, h - self.bar_height + y_off))

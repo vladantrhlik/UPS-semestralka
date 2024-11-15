@@ -17,6 +17,7 @@ class GameScene(Scene):
 
         self.turn_coords = None
         self.user_data["on_turn"] = False
+        self.user_data["in_game"] = True
     
         self.start_sync()
 
@@ -63,7 +64,12 @@ class GameScene(Scene):
                 self.user_data["oponent"] = res.split("|")[1]
                 res = self.socket.get_last_msg()
             elif res.startswith(Msg.OP_LEAVE):
-                self.user_data["oponent"] = "left :("
+                self.user_data["oponent"] += " (left)"
+                res = self.socket.get_last_msg()
+            elif res in [Msg.WIN, Msg.LOSE]:
+                self.user_data["on_turn"] = False
+                self.user_data["in_game"] = False
+                self.user_data["last_game_win"] = True if res == Msg.WIN else False
                 res = self.socket.get_last_msg()
 
             # handle turning response
@@ -105,7 +111,8 @@ class GameScene(Scene):
                 except:
                     print("Invalid oponent coords")
                 res = self.socket.get_last_msg()
-            else:
+            # info about unhandled message
+            if res == self.socket.peek_last_msg():
                 print(f"Unhandled message: {res}")
                 self.socket.get_last_msg()
 
@@ -151,7 +158,7 @@ class GameScene(Scene):
 
         try:
             data = data.split("|")[1:]
-            w, h = [int(i)-1 for i in data[:2]]
+            w, h = [int(i) - 1 for i in data[:2]]
 
             # stick data
             sticks = [int(i) for i in list(data[2])]
