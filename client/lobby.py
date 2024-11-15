@@ -1,7 +1,6 @@
 import pygame as pg
 import pygame_gui as pgui
-from scene import Scene
-from game import GameScene
+from scene import Scene, SceneType
 from consts import Msg
 from consts import NameChecker
 
@@ -74,13 +73,15 @@ class LobbyScene(Scene):
 
         # handle connecting response
         if self.connecting:
+            self.socket.get_last_msg()
             if (res == Msg.OK):
-                self.sm.set_scene(GameScene(self.user_data))
+                #self.sm.set_scene(GameScene(self.user_data))
+                #self.sm.set_scene(SceneType.GAME, self.user_data)
+                return SceneType.GAME
             else:
                 print(f"error while connecting: {res}")
 
             self.connecting = False
-            self.socket.get_last_msg()
             self.conn_but.enable()
 
     def process_event(self, event):

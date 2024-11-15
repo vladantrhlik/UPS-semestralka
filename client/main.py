@@ -3,7 +3,8 @@ from game_data import GameData, Player
 from game_view import GameView
 from login import *
 from consts import *
-from scene import SceneManager
+from scene_manager import SceneManager
+from scene import SceneType
 from game import GameScene
 from mysocket import Socket
 
@@ -18,8 +19,9 @@ sm = SceneManager()
 user_data = {"socket": Socket("localhost", 10000),
              "oponent": None,
              "on_turn": False}
-sm.set_scene(LoginScene(user_data))
+#sm.set_scene(LoginScene(user_data))
 #sm.set_scene(GameScene(user_data))
+sm.set_scene(SceneType.LOGIN, user_data)
 
 running = True
 while running:
@@ -34,7 +36,9 @@ while running:
         curr_scene.process_event(event)
 
     # update current scene
-    curr_scene.update(delta_time)
+    res = curr_scene.update(delta_time)
+    if res != None:
+        sm.set_scene(res, curr_scene.user_data)
 
     # draw current scene
     screen.fill(Col.BACKGROUND)

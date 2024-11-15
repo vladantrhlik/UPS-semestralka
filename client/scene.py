@@ -1,6 +1,11 @@
 import pygame as pg
 import pygame_gui as pgui
 
+class SceneType:
+    LOBBY = 0
+    LOGIN = 1
+    GAME = 2
+
 class Scene:
     def __init__(self, user_data):
         self.user_data = user_data
@@ -9,8 +14,9 @@ class Scene:
         self.ui_container = pgui.core.UIContainer(pg.Rect(0, 0, *pg.display.get_window_size()), manager=self.ui_manager)
         self.sm: SceneManager = None
         self.err_popup = None
+        self.next_scene: Scene = self
 
-    def update(self, delta_time):
+    def update(self, delta_time) -> int:
         self.ui_manager.update(delta_time)
         self.ui_container.set_dimensions(pg.display.get_window_size())
         self.ui_manager.set_window_resolution(pg.display.get_window_size())
@@ -37,10 +43,4 @@ class Scene:
         dim = self.ui_container.get_relative_rect().size
         self.err_popup.set_position( (dim[0]/2 - 150, 10))
 
-class SceneManager:
-    def __init__(self):
-        self.scene = None
 
-    def set_scene(self, scene: Scene):
-        self.scene = scene
-        self.scene.sm = self

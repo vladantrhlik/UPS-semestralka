@@ -1,6 +1,7 @@
 from game_data import *
 import pygame as pg
 from pygame import gfxdraw
+import pygame_gui as pgui
 from consts import *
 
 class GameView:
