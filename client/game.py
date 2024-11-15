@@ -1,9 +1,9 @@
 import pygame as pg
 import pygame_gui as pgui
-from scene import Scene
 from game_data import GameData, Player
 from game_view import GameView
 from consts import Msg
+from scene import Scene, SceneType
 
 class GameScene(Scene):
     def __init__(self, user_data):
@@ -12,12 +12,20 @@ class GameScene(Scene):
         self.game_view = GameView(self.game_data)
 
         self.turning = False
-        self.syncing = False;
+        self.syncing = False
+        self.leaving = False
 
         self.turn_coords = None
         self.user_data["on_turn"] = False
     
         self.start_sync()
+
+        # leave button
+        login_but_rect = pg.Rect(5, 5, 100, 30)
+        self.leave_but = pgui.elements.UIButton(relative_rect=login_but_rect,
+                                            text='Leave', manager=self.ui_manager,
+                                            container = self.ui_container,
+                                            anchors={'left': 'top'})
 
     def draw(self, screen):
         super().draw(screen)
@@ -75,6 +83,16 @@ class GameScene(Scene):
                 else:
                     print(f"sync error: {res}")
                 self.socket.get_last_msg()
+            # handle leaving
+            elif self.leaving:
+                self.socket.get_last_msg()
+                if res.startswith(Msg.OK):
+                    self.leaving = False
+                    #self.sm.set_scene(LobbyScene(self.user_data))
+                    #self.sm.set_scene(SceneType.LOBBY, self.user_data)
+                    return SceneType.LOBBY
+                else:
+                    print(f"leave error: {res}")
 
             # handle incoming messages
             elif res.startswith(Msg.TURN):
@@ -153,8 +171,20 @@ class GameScene(Scene):
         except:
             print("error while parsing sync data")
 
+    def leave(self):
+        self.leaving = True
+        self.socket.send("LEAVE\n")
+        print("leaving")
+
     def process_event(self, event):
         super().process_event(event)
+
+        # leave button press
+        if event.type == pgui.UI_BUTTON_PRESSED:
+            if event.ui_element == self.leave_but:
+                self.leave()
+
+        # handle mouse
         mouse_pos = list(pg.mouse.get_pos())
 
         mouse_pos[0] -= self.game_view.off_x
@@ -177,5 +207,4 @@ class GameScene(Scene):
             self.turn_coords = coords
             self.turning = True
             #self.game_data.set_stick(*coords, Player.ME)
-
 

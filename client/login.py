@@ -1,7 +1,6 @@
 import pygame_gui as pgui
 import pygame as pg
-from scene import Scene
-from lobby import LobbyScene
+from scene import Scene, SceneType
 from consts import Msg, NameChecker
 
 class LoginScene(Scene):
@@ -30,12 +29,12 @@ class LoginScene(Scene):
         # handle login response
         res = self.socket.peek_last_msg()
         if res != None:
+            self.socket.get_last_msg()
             print(f"login msg: {res}")
             if (res == Msg.OK):
-                self.sm.set_scene(LobbyScene(self.user_data))
+                return SceneType.LOBBY
             elif res.startswith(Msg.ERR):
                 print(f"error while login: {res}")
-            self.socket.get_last_msg()
             self.ui_container.enable()
 
     def process_event(self, event):
