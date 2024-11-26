@@ -158,7 +158,7 @@ class GameScene(Scene):
 
         try:
             data = data.split("|")[1:]
-            w, h = [int(i) - 1 for i in data[:2]]
+            w, h = [int(i) for i in data[:2]]
 
             # stick data
             sticks = [int(i) for i in list(data[2])]

@@ -136,7 +136,8 @@ int create_handler(Server *s, Player *p) {
 	}
 	// malloc new game
 	
-	Game *g = game_create(4, 4, name, p);
+	//Game *g = game_create(4, 4, name, p);
+	Game *g = game_create(3, 3, name, p);
 	//Game *g = game_create(1, 1, name, p);
 	if (!g) {
 		printf("Malloc err\n");
@@ -418,10 +419,10 @@ int sync_handler(Server *s, Player *p) {
 	}
 	Game *g = p->game;
 	// calculate data length
-	int square_len = (g->width - 1) * (g->height - 1);
+	int square_len = (g->width) * (g->height);
 	int delim_len = 6;
 	int size_len = 4;
-	int sticks_len = (g->width + 1) * (g->height + 1); // approx
+	int sticks_len = (g->width + 1) * 2 * (g->height + 1); // approx
 	int len = square_len + delim_len + size_len + sticks_len;
 
 	char *msgbuff = malloc(sizeof(char) * len);
@@ -442,8 +443,8 @@ int sync_handler(Server *s, Player *p) {
 	sprintf(buff, "|%d|%d|", g->width, g->height);
 	strcat(msgbuff, buff);
 	// stick data
-	for (int y = 0; y < (g->height - 1) * 2 + 1; y++) {
-		for (int x = 0; x < (g->width - 1) + y % 2; x++) {
+	for (int y = 0; y < (g->height) * 2 + 1; y++) {
+		for (int x = 0; x < (g->width) + y % 2; x++) {
 			int val = g->sticks[y][x] + 1;
 			sprintf(buff, "%d", val);
 			strcat(msgbuff, buff);
@@ -451,8 +452,8 @@ int sync_handler(Server *s, Player *p) {
 	}
 	strcat(msgbuff, "|");
 	// square data
-	for (int y = 0; y < g->height - 1; y++) {
-		for (int x = 0; x < g->width - 1; x++) {
+	for (int y = 0; y < g->height; y++) {
+		for (int x = 0; x < g->width; x++) {
 			int val = g->squares[y][x] + 1;
 			sprintf(buff, "%d", val);
 			strcat(msgbuff, buff);
