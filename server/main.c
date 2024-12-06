@@ -75,6 +75,8 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				load_handler(s, p);
 			} else if (!strcmp(cmd, "SYNC")) {
 				sync_handler(s, p);
+			} else if (!strcmp(cmd, "PING")) {
+				send_msg(p, PONG, NULL);
 			}
 
 		break;
