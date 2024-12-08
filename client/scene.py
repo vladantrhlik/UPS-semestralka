@@ -1,5 +1,6 @@
 import pygame as pg
 import pygame_gui as pgui
+from consts import *
 
 class SceneType:
     LOBBY = 0
@@ -31,6 +32,19 @@ class Scene:
 
     def draw(self, screen):
         self.ui_manager.draw_ui(screen)
+        # draw top bar
+        w, h = pg.display.get_window_size()
+        pg.draw.rect(screen, [0]*3, pg.Rect(0,0,w,BarUtils.HEIGHT))
+        # server ip
+        ip, ip_rect = BarUtils.get_font_n_rect(self.socket.ip, [0]*3)
+        y_off = (BarUtils.HEIGHT - ip_rect[1])/2
+        pg.draw.rect(screen, Col.CONNECTED if self.socket.connected else Col.DISCONNECTED, pg.Rect(0,0,ip_rect[0]+2*BarUtils.PADDING, BarUtils.HEIGHT))
+        screen.blit(ip, (BarUtils.PADDING, y_off))
+        # login info
+        uname = "not logged"
+        if "uname" in self.user_data: uname = f"login: {self.user_data["uname"]}"
+        login, login_rect = BarUtils.get_font_n_rect(uname, Col.FONT)
+        screen.blit(login, (w - BarUtils.PADDING - login_rect[0], y_off))
 
     def error(self, title="Error", msg="Message"):
         if self.err_popup != None: return

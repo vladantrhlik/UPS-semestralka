@@ -9,7 +9,6 @@ from game import GameScene
 from mysocket import Socket
 
 pg.init()
-pg.font.init() 
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
 clock = pg.time.Clock()
 
