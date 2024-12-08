@@ -2,10 +2,11 @@ import socket
 import queue
 import time
 import threading
+import pygame as pg
 
 MSGLEN = 64
-MAX_WAIT = 2
-PING_INTERVAL = 1
+MAX_WAIT = 3
+PING_INTERVAL = 3
 
 class Socket():
     ip: str
@@ -28,13 +29,14 @@ class Socket():
         self.thread_i.start()
 
     def connect(self): 
-        print("Connecting...")
+        print("Connecting...", end="")
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect((self.ip, self.port))
             self.sock.setblocking(False)
             self.connected = True
             self.pinging = False
+            print("succussfull")
         except:
             print("not successfull")
 
@@ -74,17 +76,17 @@ class Socket():
             # check timeout
             if self.waiting and time.time() - self.waiting_from > MAX_WAIT:
                 self.msg_queue.put("Timeout")
-                print("Timeout")
+
                 self.connected = False
 
-            if not self.connected:
-                self.connect()
-
             # ping every X seconds
-            if not self.pinging and time.time() - self.last_ping > PING_INTERVAL:
+            if time.time() - self.last_ping > PING_INTERVAL:
                 self.last_ping = time.time()
-                self.pinging = True
-                self.send("PING\n")
+                if not self.pinging:
+                    self.pinging = True
+                    self.send("PING\n")
+                else:
+                    self.connect()
 
             time.sleep(.01)  # Small delay to avoid high CPU usage
 
@@ -102,18 +104,3 @@ class Socket():
         else:
             self.waiting = False
             return self.msg_queue.get()
-
-    '''
-    while True:
-            chunks = []
-            bytes_recd = 0
-            while bytes_recd < MSGLEN:
-                chunk = self.sock.recv(min(MSGLEN - bytes_recd, 2048))
-                if chunk == b'':
-                    raise RuntimeError("socket connection broken")
-                chunks.append(chunk)
-                bytes_recd = bytes_recd + len(chunk)
-                # read until \n
-                if (chunks[-1][-1] == 10): break
-            self.msg_queue.put(b''.join(chunks).decode('ascii')[:-1])
-    '''

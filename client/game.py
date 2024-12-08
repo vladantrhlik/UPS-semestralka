@@ -2,7 +2,7 @@ import pygame as pg
 import pygame_gui as pgui
 from game_data import GameData, Player
 from game_view import GameView
-from consts import Msg
+from consts import Msg, BarUtils
 from scene import Scene, SceneType
 
 class GameScene(Scene):
@@ -22,7 +22,7 @@ class GameScene(Scene):
         self.start_sync()
 
         # leave button
-        login_but_rect = pg.Rect(5, 5, 100, 30)
+        login_but_rect = pg.Rect(5, BarUtils.HEIGHT + 5, 100, 30)
         self.leave_but = pgui.elements.UIButton(relative_rect=login_but_rect,
                                             text='Leave', manager=self.ui_manager,
                                             container = self.ui_container,

@@ -1,3 +1,18 @@
+import pygame as pg
+
+pg.font.init()
+class BarUtils:
+    HEIGHT = 20
+    FONT = pg.font.SysFont('Consolas', 14)
+    PADDING = 5
+
+    def get_font_n_rect(txt: str, col):
+        txt = str(txt)
+        g = BarUtils.FONT.render(txt, False, col)
+        rect = BarUtils.FONT.size(txt)
+        return (g, rect)
+
+
 class NameChecker:
     MIN_NAME_LEN = 3
     MAX_NAME_LEN = 12
@@ -19,6 +34,8 @@ class Col:
     DOT = (0,0,0)
     BAR = [27]*3
     FONT = [255]*3
+    CONNECTED = [70, 240, 115]
+    DISCONNECTED = [255,0,0]
 
 class Msg:
     OK = "OK"
