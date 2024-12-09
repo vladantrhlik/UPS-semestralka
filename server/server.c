@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+
 int server_create(Server *s, in_addr_t addr, int port) {
 	s->server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (s->server_socket < 0) {

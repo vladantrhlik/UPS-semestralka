@@ -180,7 +180,9 @@ class GameScene(Scene):
 
     def leave(self):
         self.leaving = True
-        self.socket.send("LEAVE\n")
+        if not self.socket.send("LEAVE\n"):
+            self.not_connected_err()
+            return
         print("leaving")
 
     def process_event(self, event):
@@ -210,7 +212,9 @@ class GameScene(Scene):
             self.game_view.preview_coords = [-1, -1]
 
         if event.type == pg.MOUSEBUTTONDOWN and self.user_data["on_turn"]:
-            self.socket.send(f"TURN|{coords[0]}|{coords[1]}\n")
+            if not self.socket.send(f"TURN|{coords[0]}|{coords[1]}\n"):
+                self.not_connected_err()
+                return
             self.turn_coords = coords
             self.turning = True
             #self.game_data.set_stick(*coords, Player.ME)

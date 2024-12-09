@@ -42,7 +42,9 @@ class LobbyScene(Scene):
     def fetch(self):
         if self.connecting: return
 
-        self.socket.send("LOAD\n");
+        if not self.socket.send("LOAD\n"):
+            self.not_connected_err()
+            return
         self.fetching = True
         self.rfrsh_but.disable()
 
@@ -110,9 +112,13 @@ class LobbyScene(Scene):
         new_game = self.game_input.get_text()
 
         if NameChecker.is_name_valid(new_game):
-            self.socket.send(f"CREATE|{new_game}\n")
+            if not self.socket.send(f"CREATE|{new_game}\n"):
+                self.not_connected_err()
+                return
         elif (lobby != None):
-            self.socket.send(f"JOIN|{lobby}\n")
+            if not self.socket.send(f"JOIN|{lobby}\n"):
+                self.not_connected_err()
+                return
         else:
             if len(new_game) > 0:
                 self.error(msg="Invalid game name")

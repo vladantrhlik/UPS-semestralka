@@ -119,7 +119,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 	return 0;
 }
 
-int main (void){
+int main(int argc, char *argv[]) {
 	Server s;
 	memset(&s, 0, sizeof(Server));
 
