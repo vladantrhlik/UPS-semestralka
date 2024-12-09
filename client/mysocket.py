@@ -5,8 +5,8 @@ import threading
 import pygame as pg
 
 MSGLEN = 64
-MAX_WAIT = 3
-PING_INTERVAL = 3
+MAX_WAIT = 2
+PING_INTERVAL = 1
 
 class Socket():
     ip: str
@@ -40,16 +40,24 @@ class Socket():
         except:
             print("not successfull")
 
-    def send(self, msg):
+    def send(self, msg) -> bool:
+        if not self.connected:
+            return False
+
         totalsent = 0
-        if not self.connected: return
         while totalsent < len(msg):
-            sent = self.sock.send(msg[totalsent:].encode())
+            try:
+                sent = self.sock.send(msg[totalsent:].encode())
+            except BrokenPipeError as err:
+                return False
+
             if sent == 0:
                 raise RuntimeError("socket connection broken")
             totalsent = totalsent + sent
             self.waiting = True
             self.waiting_from = time.time()
+
+        return True
 
     def recv_loop(self):
         while True:
@@ -76,7 +84,6 @@ class Socket():
             # check timeout
             if self.waiting and time.time() - self.waiting_from > MAX_WAIT:
                 self.msg_queue.put("Timeout")
-
                 self.connected = False
 
             # ping every X seconds

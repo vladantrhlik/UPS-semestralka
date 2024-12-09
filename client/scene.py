@@ -46,6 +46,11 @@ class Scene:
         login, login_rect = BarUtils.get_font_n_rect(uname, Col.FONT)
         screen.blit(login, (w - BarUtils.PADDING - login_rect[0], y_off))
 
+    def not_connected_err(self):
+        msg = "Not connected to server"
+        self.ui_container.disable()
+        self.error(msg=msg, title="Login error")
+
     def error(self, title="Error", msg="Message"):
         if self.err_popup != None: return
         self.ui_container.disable()

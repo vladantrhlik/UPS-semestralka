@@ -7,6 +7,13 @@ from scene_manager import SceneManager
 from scene import SceneType
 from game import GameScene
 from mysocket import Socket
+from sys import argv
+
+ip = "localhost"
+if len(argv) >= 2:
+    ip = argv[1]
+else:
+    print(f"Missing IP, using '{ip}'")
 
 pg.init()
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
@@ -15,7 +22,7 @@ clock = pg.time.Clock()
 # start game with login screen
 sm = SceneManager()
 
-user_data = {"socket": Socket("localhost", 10000),
+user_data = {"socket": Socket(ip, 10000),
              "oponent": None,
              "on_turn": False,
              "in_game": False,
