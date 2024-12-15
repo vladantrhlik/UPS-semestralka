@@ -42,7 +42,7 @@ class Scene:
         screen.blit(ip, (BarUtils.PADDING, y_off))
         # login info
         uname = "not logged"
-        if "uname" in self.user_data: uname = f"login: {self.user_data["uname"]}"
+        if "uname" in self.user_data: uname = f"login: {self.user_data['uname']}"
         login, login_rect = BarUtils.get_font_n_rect(uname, Col.FONT)
         screen.blit(login, (w - BarUtils.PADDING - login_rect[0], y_off))
 
