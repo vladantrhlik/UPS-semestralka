@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 	Server s;
 	memset(&s, 0, sizeof(Server));
 
-	server_create(&s, INADDR_ANY, 10000);
+	server_create(&s, "config.txt");
 	for (;;) server_handle(&s, &handle_msg);
 
 	return 0;
