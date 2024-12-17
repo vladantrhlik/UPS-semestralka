@@ -90,10 +90,12 @@ typedef struct {
 	Player **players;
 	int player_count;
 	int players_size;
+	int max_players;
 	/* games */
 	Game **games;
 	int game_count;
 	int games_size;
+	int max_games;
 } Server;
 
 #endif

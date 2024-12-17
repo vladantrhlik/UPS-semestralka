@@ -1,12 +1,36 @@
 #include "server.h"
 #include "structs.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#define BUFF_LEN 256
 
-int server_create(Server *s, in_addr_t addr, int port) {
+
+int server_create(Server *s, char *config_file) {
+	// load config file
+	int port = 10000, ip = 0, max_players = -1, max_games = -1;
+	char buffer[BUFF_LEN];
+	FILE *conf = fopen(config_file, "r");
+	while (fgets(buffer, BUFF_LEN, conf) != NULL) {
+		char *key = strtok(buffer, " ");
+		char *value = strtok(NULL, "\n");
+		if (!strcmp(key, "port")) {
+			port = atoi(value);
+		} else if (!strcmp(key, "ip")) {
+			ip = atoi(value);
+		} else if (!strcmp(key, "maxPlayers")) {
+			max_players = atoi(value);
+		} else if (!strcmp(key, "maxGames")) {
+			max_games = atoi(value);
+		}
+	}
+
+	printf("ip: %d\nport: %d\nmaxPlayers: %d\nmaxGames: %d\n", ip, port, max_players, max_games);
+
+
 	s->server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (s->server_socket < 0) {
 		printf("Socket create - ERR\n");
@@ -16,7 +40,9 @@ int server_create(Server *s, in_addr_t addr, int port) {
 	memset(&s->my_addr, 0, sizeof(struct sockaddr_in));
 	s->my_addr.sin_family = AF_INET;
 	s->my_addr.sin_port = htons(port);
-	s->my_addr.sin_addr.s_addr = addr;
+	s->my_addr.sin_addr.s_addr = ip;
+	s->max_games = max_games;
+	s->max_players = max_players;
 
 	int return_value = bind(s->server_socket, (struct sockaddr *) &s->my_addr, \
 		sizeof(struct sockaddr_in));
