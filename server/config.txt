@@ -1,4 +1,4 @@
 maxPlayers 20
 maxGames 40
 port 10000
-ip 0
+ip 127.0.0.1
