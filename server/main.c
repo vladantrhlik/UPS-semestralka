@@ -95,6 +95,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				// mark as disconnected
 				p->state = ST_DISCONNECTED;
 				printf("Disconnected: %d\n", fd);
+				s->logged_players--;
 			}
 
 			// remove game if player was waiting in the game

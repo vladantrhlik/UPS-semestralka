@@ -45,6 +45,7 @@ class Msg:
     ERR3 = "ERR3"
     ERR4 = "ERR4"
     ERR5 = "ERR5"
+    ERR6 = "ERR6"
     TURN = "TURN"
     ON_TURN = "ON_TURN"
     OP_TURN = "OP_TURN"

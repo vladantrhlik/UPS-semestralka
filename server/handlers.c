@@ -37,7 +37,8 @@ int list_handler(Server *s, Player *p) {
 	return 0;
 }
 
-int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
+int login_handler(Server *s, Player *p) { 
+	char *name = strtok(NULL, END_DELIM);
 	if (!name) {
 		printf("No args\n");
 		send_msg(p, ERR, "1");
@@ -51,7 +52,6 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 		return 1;
 	}
 
-	// TODO: validate if its legal to login (state machine?)
 	PState next = transition(p->state, EV_LOGIN);
 	if (!next) {
 		printf("Invalid state\n");
@@ -79,6 +79,12 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 			}
 		}
 	}
+
+	if (s->logged_players + 1 > s->max_players) {
+		printf("Too many players (%d / %d)\n", s->player_count, s->max_players);
+		send_msg(p, ERR, "6");
+		return 1;
+	}
 	
 	// login new player
 	strcpy(p->name, name);
@@ -86,6 +92,7 @@ int login_handler(Server *s, Player *p) { char *name = strtok(NULL, END_DELIM);
 	printf("Loggin new player '%s'\n", name);
 	p->state = next;
 	send_msg(p, OK, NULL);
+	s->logged_players++;
 	return 0;
 }
 
@@ -121,6 +128,14 @@ int create_handler(Server *s, Player *p) {
 		send_msg(p, ERR, "1");
 		return 1;
 	}
+
+	// check max game limit
+	if (s->game_count + 1 > s->max_games) {
+		printf("Max game limit exceeded\n");
+		send_msg(p, ERR, "6");
+		return 1;
+	}
+
 	p->state = next;
 
 	// create new game

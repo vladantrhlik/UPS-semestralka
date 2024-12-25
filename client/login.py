@@ -33,6 +33,8 @@ class LoginScene(Scene):
             print(f"login msg: {res}")
             if (res == Msg.OK):
                 return SceneType.LOBBY
+            elif res == Msg.ERR6:
+                self.error(msg="Max player limit exceeded.");
             elif res.startswith(Msg.ERR):
                 print(f"error while login: {res}")
             self.ui_container.enable()

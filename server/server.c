@@ -46,6 +46,7 @@ int server_create(Server *s, char *config_file) {
 	s->my_addr.sin_addr.s_addr = inet_addr(ip);
 	s->max_games = max_games;
 	s->max_players = max_players;
+	s->logged_players = 0;
 
 	int return_value = bind(s->server_socket, (struct sockaddr *) &s->my_addr, \
 		sizeof(struct sockaddr_in));
