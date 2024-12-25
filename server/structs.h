@@ -73,10 +73,10 @@ typedef struct {
 
 typedef struct Gaym {
 	Player *p0, *p1;
-	int finished;
 	int active_players;
 	char name[MAX_NAME_LEN + 1];
 	int on_turn;
+	int finished;
 	int width, height; // number of squares
 	int **sticks;
 	int **squares;
@@ -91,6 +91,7 @@ typedef struct {
 	Player **players;
 	int player_count;
 	int players_size;
+	int logged_players;
 	int max_players;
 	/* games */
 	Game **games;

@@ -80,6 +80,8 @@ class LobbyScene(Scene):
                 #self.sm.set_scene(GameScene(self.user_data))
                 #self.sm.set_scene(SceneType.GAME, self.user_data)
                 return SceneType.GAME
+            elif res == Msg.ERR6:
+                self.error(msg="Max game limit exceeded"); 
             else:
                 print(f"error while connecting: {res}")
 
