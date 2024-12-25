@@ -136,9 +136,8 @@ int create_handler(Server *s, Player *p) {
 	}
 	// malloc new game
 	
-	//Game *g = game_create(4, 4, name, p);
-	Game *g = game_create(3, 3, name, p);
-	//Game *g = game_create(1, 1, name, p);
+	//Game *g = game_create(3, 3, name, p);
+	Game *g = game_create(1, 1, name, p);
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");
@@ -172,7 +171,7 @@ int join_handler(Server *s, Player *p) {
 			break;
 		}
 	}
-	if (!g) {
+	if (!g || g->finished) {
 		printf("Game not found\n");
 		send_msg(p, ERR, "1");
 		return 1;
@@ -363,8 +362,7 @@ int turn_handler(Server *s, Player *p) {
 				return 1;
 			}
 			op->state = next;
-			// delete game
-			// remove_game(s, g);
+			g->finished = 1;
 		}
 	}
 	
@@ -374,6 +372,7 @@ int turn_handler(Server *s, Player *p) {
 int leave_handler(Server *s, Player *p) {
 	// validate state
 	PState next = transition(p->state, EV_LEAVE);
+	Game *g = p->game;
 	if (!next) {
 		printf("Invalid state\n");
 		send_msg(p, ERR, NULL);
@@ -381,15 +380,29 @@ int leave_handler(Server *s, Player *p) {
 	} 
 
 	p->state = next;
-	Player *op = p->game->p0 == p ? p->game->p1 : p->game->p0;
-	if (op) {
-		send_msg(op, OP_DISCONNECT, NULL);
+
+	if (g->finished) {
+		printf("trying to remove game\n");
+		if (g->p0 == p) g->p0 = NULL;
+		else g->p1 = NULL;
+
+		p->game = NULL;
+
+		if (!g->p0 && !g->p1) {
+			remove_game(s, g);
+		}
+		send_msg(p, OK, NULL);
 	} else {
 		// remove game if not oponent
-		remove_game(s, p->game);
+		Player *op = p->game->p0 == p ? p->game->p1 : p->game->p0;
+		if (op) {
+			// inform oponent about leaving
+			send_msg(op, OP_DISCONNECT, NULL);
+		} else {
+			remove_game(s, p->game);
+		}
+		send_msg(p, OK, NULL);
 	}
-	// inform oponent about leaving
-	send_msg(p, OK, NULL);
 
 	return 0;
 }
@@ -402,6 +415,7 @@ int load_handler(Server *s, Player *p) {
 	memset(buff, 0, sizeof(char) * max_len);
 	for (int i = 0; i < s->game_count; i++) {
 		Game *g = s->games[i];
+		if (g->finished) continue;
 		strcat(buff, DELIM);
 		strcat(buff, g->name);
 	}

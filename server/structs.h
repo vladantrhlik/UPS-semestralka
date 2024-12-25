@@ -73,6 +73,7 @@ typedef struct {
 
 typedef struct Gaym {
 	Player *p0, *p1;
+	int finished;
 	int active_players;
 	char name[MAX_NAME_LEN + 1];
 	int on_turn;

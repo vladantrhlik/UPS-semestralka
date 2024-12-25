@@ -1,3 +1,2 @@
-add LOAD to load info about all hobbies
-set game to null when player leaves/disconnectss - needed?
-players cant create new game when they joined to game and then left (game must be finished/deleted)
+
+delete game when finished and both left
