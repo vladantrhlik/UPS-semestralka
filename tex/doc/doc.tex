@@ -1,0 +1,152 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{titling}
+\usepackage{float}
+\usepackage[parfill]{parskip}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+% automata
+\usepackage{tikz}
+\usetikzlibrary {arrows.meta,automata,positioning}
+
+\author{Vladan Trhlík}
+\title{%
+	Semestrální práce z KIV/UPS \\
+	\large Dots and Boxes  \\
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Popis hry}
+Hra Dots and Boxes je strategická tahová hra pro dva hráče. Herní pole tvoří čtvercová mřížka teček (v tomto případě 4 × 4), a cílem hry je propojit sousední tečky tak, aby vznikl čtverec. Hráč, který uzavře čtverec, získá bod a pokračuje dalším tahem. Hra končí, jakmile jsou všechny čtverce uzavřeny, a vítězem se stává hráč, který získal více bodů.
+\section{Protokol}
+
+\subsection{Základní popis}
+Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv oddělují znakem '\texttt{|}' a ukončovací znak je '\texttt{\textbackslash n}'. Jména hráčů a názvy her jsou omezena na velká a malá písmena a znak '\texttt{\_}'. Pokud není zpráva ve správném formátu, nebo zadané parametry nedávají v aktuálním kontextu smysl, odpovědí je zpráva \texttt{ERR<n>}, kde \texttt{n} je číslo jedné z chybových zpráv:
+\begin{itemize}
+	\item \texttt{1} -- invalid
+	\item \texttt{2} -- name already exists
+	\item \texttt{3} -- player not on turn
+	\item \texttt{4} -- player not in game
+	\item \texttt{5} -- already in game
+	\item \texttt{6} -- max limit exceeded
+\end{itemize}
+
+\subsection{Zprávy}
+\subsubsection*{Přihlášení}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{LOGIN|<name>}
+	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
+\end{itemize}
+
+\subsubsection*{Načtení všech lobby}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{LOAD}
+	\item \textbf{Server:} \texttt{OK|<lobby1-name>|<lobby2-name>|...|<lobbyN-name>}
+\end{itemize}
+
+\subsubsection*{Vytvoření lobby}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{CREATE|<lobby-name>}
+	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
+\end{itemize}
+
+\subsubsection*{Připojení do lobby}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{JOIN|<lobby-name>}
+	\item \textbf{Server:} \texttt{OK|<op-name> / ERR<1/5>}
+\end{itemize}
+
+\subsubsection*{Oponent se připojil}
+\begin{itemize}
+	\item \textbf{Server:} \texttt{OP\_JOIN|<op-name>}
+	\item \textbf{Client:} \texttt{OK / ERR<4/5>}
+\end{itemize}
+
+\subsubsection*{Oponent se odpojil}
+\begin{itemize}
+	\item \textbf{Server:} \texttt{OP\_LEAVE}
+	\item \textbf{Client:} \texttt{OK / ERR<4>}
+\end{itemize}
+
+\subsubsection*{Odpojení od hry}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{LEAVE}
+	\item \textbf{Server:} \texttt{OK / ERR<4>}
+\end{itemize}
+
+\subsubsection*{Tah}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{TURN|X|Y}
+	\item \textbf{Server:} \texttt{OK / ERR<1/3>}
+\end{itemize}
+
+\subsubsection*{Hráč je na tahu}
+\begin{itemize}
+	\item \textbf{Server:} \texttt{ON\_TURN}
+	\item \textbf{Client:} \texttt{OK}
+\end{itemize}
+
+\subsubsection*{Oponent je na tahu}
+\begin{itemize}
+	\item \textbf{Server:} \texttt{OP\_TURN}
+	\item \textbf{Client:} \texttt{OK}
+\end{itemize}
+
+\subsubsection*{Konec hry}
+\begin{itemize}
+	\item \textbf{Server:} \texttt{END|<WIN/LOSE>}
+	\item \textbf{Client:} \texttt{OK}
+\end{itemize}
+
+\subsubsection*{Ping}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{PING}
+	\item \textbf{Server:} \texttt{PONG}
+\end{itemize}
+
+\subsubsection*{Synchronizace hry}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{SYNC}
+	\item \textbf{Server:} \texttt{OK|<w>|<h>|<stick-data>|<square-data> / ERR<4>}
+	\\ data o hře budou reprezentována čísly 0-2, kde 0 je prázdné místo, 1 hráč, který žádá o SYNC a 2 jeho oponent
+\end{itemize}
+
+\section{Diagram}
+\begin{tikzpicture}[node distance=4cm,on grid,auto] 
+
+   \node[state,initial,initial text=$P_1$\ login] (p_0)   {lobby}; 
+   \node[state,initial,initial text=$P_2$\ login] (p_1) [below=of p_0]  {lobby}; 
+   \node[state] (q_0) [right=of p_0]  {waiting}; 
+   \node[state] (q_1) [right=of q_0] {$P_1$ on turn}; 
+   \node[state] (q_2) [right=of q_1] {$P_2$ on turn}; 
+   \node[state] (q_3) [below=of q_1] {$P_1$ wins}; 
+   \node[state] (q_4) [below=of q_2] {$P_2$ wins}; 
+   \node[state] (q_5) [below=of q_3] {lobby}; 
+    \path[->] 
+		(p_0) edge node {create game \texttt{A}} (q_0)
+		(p_1) edge [bend right] node {join game \texttt{A}} (q_1)
+		(q_0) edge node {$P_2$ joined} (q_1)
+		(q_1) edge [bend left] node {$P_1$ turn} (q_2)
+			  edge [loop above] node {$P_1$ turn} ()
+			  edge node {$P_1$ turn} (q_3)
+		(q_2) edge [bend left] node {$P_2$ turn} (q_1)
+			  edge [loop above] node {$P_2$ turn} ()
+			  edge node {$P_2$ turn} (q_4)
+		(q_3) edge node {leave} (q_5)
+		(q_4) edge [bend left] node {leave} (q_5);
+	\path[->,dashed]
+		(q_5) edge [bend left] node {} (p_0)
+		(q_5) edge [bend left] node {} (p_1)
+
+\end{tikzpicture}
+\end{document}
