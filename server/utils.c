@@ -4,8 +4,12 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/select.h>
+#include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
+
+#include "structs.h"
 
 PState transitions[STATE_COUNT][EVENT_COUNT] = {
 	[ST_CONNECTED][EV_LOGIN] = ST_LOGGED,
@@ -86,6 +90,26 @@ int remove_game(Server *s, Game *g) {
 
 	return 0;
 
+}
+
+Player *find_connected_player(Server *s, int fd) {
+	for (int i = 0; i < s->player_count; i++) {
+		if (s->players[i]->fd == fd && s->players[i]->state != ST_DISCONNECTED) return s->players[i];
+	}
+	return NULL;
+}
+
+int invalid_msg(Server *s, Player *p) {
+	if (!p) return 1;
+	p->invalid_msg_count++;
+	if (p->invalid_msg_count >= MAX_INVALID_MSG) {
+		printf("Disconnecting player %d\n", p->fd);
+		int fd = p->fd;
+		close(fd);
+		FD_CLR( fd, &s->client_socks );
+		return 1;
+	}
+	return 0;
 }
 
 char *typeMessages[] = {

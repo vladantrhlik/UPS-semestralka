@@ -7,6 +7,7 @@
 #define BUFFER_SIZE 128
 #define MIN_NAME_LEN 3
 #define MAX_NAME_LEN 12
+#define MAX_INVALID_MSG 5
 
 #define DELIM "|"
 #define END_DELIM "\n"
@@ -67,6 +68,7 @@ typedef struct {
 	int fd;
 	char name[MAX_NAME_LEN + 1];
 	int index;
+	int invalid_msg_count;
 	PState state;
 	Game *game;
 } Player;

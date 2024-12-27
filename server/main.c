@@ -13,12 +13,9 @@
 #include "handlers.h"
 #include "utils.h"
 
-Player *find_connected_player(Server *s, int fd) {
-	for (int i = 0; i < s->player_count; i++) {
-		if (s->players[i]->fd == fd && s->players[i]->state != ST_DISCONNECTED) return s->players[i];
-	}
-	return NULL;
-}
+char *handled_msgs[] = {"LIST", "LOGIN", "CREATE", "JOIN", "TURN", "LEAVE", "LOAD", "SYNC"};
+int (*handlers[])(Server *s, Player *p) = {list_handler, login_handler, create_handler, join_handler, turn_handler, leave_handler, load_handler, sync_handler};
+int handler_count = sizeof(handled_msgs) / sizeof(char*);
 
 int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 	Player *p;
@@ -41,6 +38,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			p->fd = fd;
 			p->state = ST_CONNECTED;
 			p->index = s->player_count;
+			p->invalid_msg_count = 0;
 			if (!p) {
 				printf("Malloc err\n");
 				return -1;
@@ -59,24 +57,19 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			char *cmd = strtok(msg, DELIMETERS);
 			if (!cmd) break;
 
-			if (!strcmp(cmd, "LIST")) {
-				list_handler(s, p);
-			} else if (!strcmp(cmd, "LOGIN")) {
-				login_handler(s, p);
-			} else if (!strcmp(cmd, "CREATE")) {
-				create_handler(s, p);
-			} else if (!strcmp(cmd, "JOIN")) {
-				join_handler(s, p);
-			} else if (!strcmp(cmd, "TURN")) {
-				turn_handler(s, p);
-			} else if (!strcmp(cmd, "LEAVE")) {
-				leave_handler(s, p);
-			} else if (!strcmp(cmd, "LOAD")) {
-				load_handler(s, p);
-			} else if (!strcmp(cmd, "SYNC")) {
-				sync_handler(s, p);
-			} else if (!strcmp(cmd, "PING")) {
+			for (int i = 0; i < handler_count; i++) {
+				if (!strcmp(cmd, handled_msgs[i])) {
+					if (handlers[i](s, p)) {
+						printf("Invalid message.\n");
+						if (invalid_msg(s, p)) handle_msg(s, DISCONNECT, fd, NULL);
+					}
+					break;
+				}
+			}
+
+			if (!strcmp(cmd, "PING")) {
 				send_msg(p, PONG, NULL);
+				break;
 			}
 
 		break;
