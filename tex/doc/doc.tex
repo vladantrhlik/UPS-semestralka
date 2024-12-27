@@ -46,30 +46,35 @@ Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv od
 \begin{itemize}
 	\item \textbf{Client:} \texttt{LOGIN|<name>}
 	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
+	\item \texttt{<name>}: přihlašovací jméno hráče
 \end{itemize}
 
-\subsubsection*{Načtení všech lobby}
+\subsubsection*{Načtení všech her}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{LOAD}
-	\item \textbf{Server:} \texttt{OK|<lobby1-name>|<lobby2-name>|...|<lobbyN-name>}
+	\item \textbf{Server:} \texttt{OK|<game1-name>|<game2-name>|...|<gameN-name>}
+	\item \texttt{<game-name>}: název I-té hry
 \end{itemize}
 
-\subsubsection*{Vytvoření lobby}
+\subsubsection*{Vytvoření hry}
 \begin{itemize}
-	\item \textbf{Client:} \texttt{CREATE|<lobby-name>}
+	\item \textbf{Client:} \texttt{CREATE|<game-name>}
 	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
+	\item \texttt{<game-name>}: název hry
 \end{itemize}
 
-\subsubsection*{Připojení do lobby}
+\subsubsection*{Připojení do hry}
 \begin{itemize}
-	\item \textbf{Client:} \texttt{JOIN|<lobby-name>}
+	\item \textbf{Client:} \texttt{JOIN|<game-name>}
 	\item \textbf{Server:} \texttt{OK|<op-name> / ERR<1/5>}
+	\item \texttt{<game-name>}: název hry, \texttt{<op-name>}: jméno oponenta
 \end{itemize}
 
 \subsubsection*{Oponent se připojil}
 \begin{itemize}
 	\item \textbf{Server:} \texttt{OP\_JOIN|<op-name>}
 	\item \textbf{Client:} \texttt{OK / ERR<4/5>}
+	\item \texttt{<op-name>}: jméno oponenta
 \end{itemize}
 
 \subsubsection*{Oponent se odpojil}
@@ -86,8 +91,19 @@ Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv od
 
 \subsubsection*{Tah}
 \begin{itemize}
-	\item \textbf{Client:} \texttt{TURN|X|Y}
-	\item \textbf{Server:} \texttt{OK / ERR<1/3>}
+	\item \textbf{Server, Client:} \texttt{TURN|<X>|<Y>}
+	\item \textbf{Client, Server:} \texttt{OK / ERR<1/3>}
+	\item \texttt{<X>}, \texttt{<Y>}: pozice tahu
+	\item Pokud přijde zpráva ze severu, jedná se o tah oponenta, pokud od klienta, posílají se data jeho oponentovi.
+\end{itemize}
+
+\subsubsection*{Obsazení čtverce}
+\begin{itemize}
+	\item \textbf{Server:} \texttt{(OP\_)ACQ|<X>|<Y>(|<X2>|<Y2>)}
+	\item \textbf{Client:} \texttt{OK}
+	\item \texttt{<X>}, \texttt{<Y>}, \texttt{<X2>}, \texttt{<Y2>}: pozice čtverce
+	\item \texttt{OP\_ACQ} informuje o obsazení oponentem, \texttt{ACQ} hráčem, který zprávu přijímá.
+	\item Při propojení dvou teček může dojít k obsazení jednoho nebo dvou čtverců -- podle toho se pošle počet pozic čtverců.
 \end{itemize}
 
 \subsubsection*{Hráč je na tahu}
@@ -104,7 +120,7 @@ Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv od
 
 \subsubsection*{Konec hry}
 \begin{itemize}
-	\item \textbf{Server:} \texttt{END|<WIN/LOSE>}
+	\item \textbf{Server:} \texttt{END|WIN/LOSE}
 	\item \textbf{Client:} \texttt{OK}
 \end{itemize}
 
@@ -118,7 +134,13 @@ Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv od
 \begin{itemize}
 	\item \textbf{Client:} \texttt{SYNC}
 	\item \textbf{Server:} \texttt{OK|<w>|<h>|<stick-data>|<square-data> / ERR<4>}
-	\\ data o hře budou reprezentována čísly 0-2, kde 0 je prázdné místo, 1 hráč, který žádá o SYNC a 2 jeho oponent
+	\item \texttt{<w>}, \texttt{<h>}: velikost hracího pole, \texttt{<stick-data>}: data o propojených tečkách, \texttt{<square-data>}: data o obsazených čtvercích
+	\item data o propojených tečkách a obsazených čtvercích jsou řetězce z čísel 0,1,2
+	\begin{itemize}
+		\item 0 = nepropojeno / neobsazeno
+		\item 1 = hráč který žádá o \texttt{SYNC}
+		\item 2 = oponent
+	\end{itemize}
 \end{itemize}
 
 \section{Diagram}
