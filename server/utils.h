@@ -9,6 +9,10 @@ int remove_game(Server *s, Game *g);
 
 int send_msg(Player *p, MsgType type, char *msg);
 
+int invalid_msg(Server *s, Player *p);
+
+Player *find_connected_player(Server *s, int fd);
+
 /**
  * Check if name is valid game name / nickname
  * @return 1 - valid, 0 - invalid

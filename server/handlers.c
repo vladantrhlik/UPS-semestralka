@@ -49,7 +49,7 @@ int login_handler(Server *s, Player *p) {
 	if (!is_name_valid(name)) {
 		send_msg(p, ERR, "1");
 		printf("Invalid nickname\n");
-		return 1;
+		return 0;
 	}
 
 	PState next = transition(p->state, EV_LOGIN);
@@ -66,7 +66,7 @@ int login_handler(Server *s, Player *p) {
 			if (s->players[i]->state != ST_DISCONNECTED) {
 				printf("Already connected, rejecting\n");
 				send_msg(p, ERR, "5");
-				return 1;
+				return 0;
 			} else {
 				printf("Reconnecting player\n");
 				s->players[i]->state = ST_LOGGED;
@@ -83,7 +83,7 @@ int login_handler(Server *s, Player *p) {
 	if (s->logged_players + 1 > s->max_players) {
 		printf("Too many players (%d / %d)\n", s->player_count, s->max_players);
 		send_msg(p, ERR, "6");
-		return 1;
+		return 0;
 	}
 	
 	// login new player
@@ -108,7 +108,7 @@ int create_handler(Server *s, Player *p) {
 	if (!is_name_valid(name)) {
 		printf("Invalid name\n");
 		send_msg(p, ERR, "1");
-		return 1;
+		return 0;
 	}
 
 	// check if game with same name already exists
@@ -117,7 +117,7 @@ int create_handler(Server *s, Player *p) {
 		if (!strcmp(g->name, name)) {
 			printf("Game already exists\n");
 			send_msg(p, ERR, "1");
-			return 1;
+			return 0;
 		}
 	}
 
@@ -133,7 +133,7 @@ int create_handler(Server *s, Player *p) {
 	if (s->game_count + 1 > s->max_games) {
 		printf("Max game limit exceeded\n");
 		send_msg(p, ERR, "6");
-		return 1;
+		return 0;
 	}
 
 	p->state = next;
@@ -145,7 +145,7 @@ int create_handler(Server *s, Player *p) {
 		if (!new_games) {
 			printf("Malloc err\n");
 			send_msg(p, ERR, "1");
-			return -1;
+			return 0;
 		}
 		s->games = new_games;
 	}
@@ -156,7 +156,7 @@ int create_handler(Server *s, Player *p) {
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");
-		return -1;
+		return 0;
 	}
 	p->game = g;
 	// add game to games
@@ -201,7 +201,7 @@ int join_handler(Server *s, Player *p) {
 		} else {
 			printf("Game is full\n");
 			send_msg(p, ERR, "1");
-			return 1;
+			return 0;
 		}
 	}
 
@@ -309,7 +309,7 @@ int turn_handler(Server *s, Player *p) {
 	if (!is_turn_valid(g, x, y)) {
 		printf("Invalid move\n");
 		send_msg(p, ERR, "1");
-		return 1;
+		return 0;
 	}
 
 	// figure out if good or bad turn -- closed square?

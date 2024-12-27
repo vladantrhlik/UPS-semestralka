@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "utils.h"
+
 #define BUFF_LEN 256
 
 
@@ -105,7 +107,9 @@ int server_handle(Server *s, int (*handle)(Server *s, SEvent type, int fd, char 
 
 				ioctl( fd, FIONREAD, &msg_len );
 				if (msg_len > BUFFER_SIZE) {
-					printf("Zpráva je nějak moc dlouhá\n");
+					printf("Message is too long.\n");
+					Player *p = find_connected_player(s, fd);
+					if (invalid_msg(s, p)) handle(s, DISCONNECT, fd, NULL);
 					return -1;
 				}
 				// mame co cist
