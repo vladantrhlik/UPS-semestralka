@@ -7,7 +7,7 @@
 #define BUFFER_SIZE 128
 #define MIN_NAME_LEN 3
 #define MAX_NAME_LEN 12
-#define MAX_INVALID_MSG 5
+#define MAX_INVALID_MSG 10
 
 #define DELIM "|"
 #define END_DELIM "\n"

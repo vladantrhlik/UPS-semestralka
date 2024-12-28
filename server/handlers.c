@@ -9,6 +9,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "game.h"
+#include "server.h"
+
 char *states[STATE_COUNT] = {
 	[ST_CONNECTED] = "connected",
 	[ST_LOGGED] = "logged",
