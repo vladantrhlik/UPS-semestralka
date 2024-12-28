@@ -35,17 +35,21 @@ class GameScene(Scene):
     def update(self, delta_time):
         super().update(delta_time)
 
+        # read potential message from msg queue
         res = self.socket.peek_last_msg()
         if res != None:
             print(f"received: {res}")
+            # player on turn
             if res == Msg.ON_TURN:
                 print("on turn")
                 self.user_data["on_turn"] = True
                 res = self.socket.get_last_msg()
+            # oponent on turn
             elif res == Msg.OP_TURN:
                 print("oponent on turn")
                 self.user_data["on_turn"] = False
                 res = self.socket.get_last_msg()
+            # square acquirement
             elif res.startswith(Msg.ACQ) or res.startswith(Msg.OP_ACQ):
                 # parse square data
                 s = res.split("|")[1:]
@@ -60,12 +64,15 @@ class GameScene(Scene):
                     except:
                         print(f"Error while parsing ACQ coords")
                 res = self.socket.get_last_msg()
+            # oponent joined the game
             elif res.startswith(Msg.OP_JOIN):
                 self.user_data["oponent"] = res.split("|")[1]
                 res = self.socket.get_last_msg()
+            # oponent left the game
             elif res.startswith(Msg.OP_LEAVE):
                 self.user_data["oponent"] += " (left)"
                 res = self.socket.get_last_msg()
+            # game end -> win / lose
             elif res in [Msg.WIN, Msg.LOSE]:
                 self.user_data["on_turn"] = False
                 self.user_data["in_game"] = False
@@ -81,7 +88,7 @@ class GameScene(Scene):
                     print(f"game error: {res}")
                 res = self.socket.get_last_msg()
                 return
-            # handle syncing
+            # handle syncing response
             elif self.syncing:
                 if res.startswith(Msg.OK):
                     self.syncing = False
@@ -89,7 +96,7 @@ class GameScene(Scene):
                 else:
                     print(f"sync error: {res}")
                 self.socket.get_last_msg()
-            # handle leaving
+            # handle leaving response
             elif self.leaving:
                 self.socket.get_last_msg()
                 if res.startswith(Msg.OK):
@@ -100,7 +107,7 @@ class GameScene(Scene):
                 else:
                     print(f"leave error: {res}")
 
-            # handle incoming messages
+            # handle incoming turn messages
             elif res.startswith(Msg.TURN):
                 try:
                     coords = [int(i) for i in res.split("|")[1:]]
@@ -116,7 +123,10 @@ class GameScene(Scene):
                 print(f"Unhandled message: {res}")
                 self.socket.get_last_msg()
 
-    def calc_stick_pos(self, local_mouse_pos, tile):
+    def calc_stick_pos(self, local_mouse_pos, tile) -> list[int]:
+        '''
+        Calculate stick (connection) position between two dots from mouse position
+        '''
         # get square coords
         sq = [i//tile for i in local_mouse_pos]
         # get local square coords [0-1, 0-1]
@@ -143,11 +153,17 @@ class GameScene(Scene):
         return coords
 
     def start_sync(self):
+        '''
+        Start synchronization of game data with server
+        '''
         if self.turning: return
         self.socket.send(f"SYNC\n")
         self.syncing = True
 
     def sync(self, data: str):
+        '''
+        Synchronize game data with server
+        '''
         print(f"syncing to: {data}")
 
         data_conv = {
@@ -179,6 +195,9 @@ class GameScene(Scene):
             print("error while parsing sync data")
 
     def leave(self):
+        '''
+        Start leaving game
+        '''
         self.leaving = True
         if not self.socket.send("LEAVE\n"):
             self.not_connected_err()

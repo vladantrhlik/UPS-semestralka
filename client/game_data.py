@@ -1,11 +1,17 @@
 from enum import Enum
 
 class Player(Enum):
+    '''
+    Player types
+    '''
     NONE = 0
     ME = 1
     HIM = 2
 
 class GameData:
+    '''
+    Data for game scene
+    '''
     def __init__(self, user_data, width: int, height: int):
         self.w = width
         self.h = height
@@ -23,6 +29,9 @@ class GameData:
         }
 
     def set_square(self, x: int, y: int, val: Player):
+        '''
+        Set square of game board to player
+        '''
         # validate coordinates
         if x < 0 or x >= self.w or y < 0 or y >= self.h:
             print(f"error: invalid square coordinates [{x}, {y}]")
@@ -31,6 +40,9 @@ class GameData:
         if val != Player.NONE: self.score[val] += 1
 
     def set_stick(self, x: int, y: int, val: Player):
+        '''
+        Set stick (connection) of game board to player
+        '''
         # validate coordinates
         if y < 0 or y >= len(self.stick_data) or x < 0 or x >= len(self.stick_data[y]):
             print(f"error: invalid stick coordinates [{x}, {y}]")

@@ -9,12 +9,14 @@ from game import GameScene
 from mysocket import Socket
 from sys import argv
 
+# read ip of server
 ip = "localhost"
 if len(argv) >= 2:
     ip = argv[1]
 else:
     print(f"Missing IP, using '{ip}'")
 
+# init pygame
 pg.init()
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
 clock = pg.time.Clock()
@@ -22,15 +24,15 @@ clock = pg.time.Clock()
 # start game with login screen
 sm = SceneManager()
 
+# default user data
 user_data = {"socket": Socket(ip, 10000),
              "oponent": None,
              "on_turn": False,
              "in_game": False,
              "last_game_win": False}
-#sm.set_scene(LoginScene(user_data))
-#sm.set_scene(GameScene(user_data))
 sm.set_scene(SceneType.LOGIN, user_data)
 
+# main loop
 running = True
 while running:
     curr_scene = sm.scene

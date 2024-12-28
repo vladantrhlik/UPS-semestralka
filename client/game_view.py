@@ -5,6 +5,9 @@ import pygame_gui as pgui
 from consts import *
 
 class GameView:
+    '''
+    Drawing for game scene using GameData
+    '''
     def __init__(self, game_data: GameData):
         self.game_data = game_data
 

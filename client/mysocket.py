@@ -9,6 +9,9 @@ MAX_WAIT = 2
 PING_INTERVAL = 1
 
 class Socket():
+    '''
+    Client socket scene
+    '''
     ip: str
     port: int
 
@@ -29,6 +32,9 @@ class Socket():
         self.thread_i.start()
 
     def connect(self): 
+        '''
+        Try connecting to sever
+        '''
         print("Connecting...", end="")
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,6 +47,9 @@ class Socket():
             print("not successfull")
 
     def send(self, msg) -> bool:
+        '''
+        Send message to server
+        '''
         if not self.connected:
             return False
 
@@ -60,9 +69,12 @@ class Socket():
         return True
 
     def recv_loop(self):
+        '''
+        Main loop for receiving messages (in 2nd thread)
+        '''
         while True:
             try:
-                # Try receiving data from the server
+                # try receiving data from the server
                 data = self.sock.recv(1024)
                 if data:
                     for i in data.decode('utf-8').split('\n'):
@@ -72,14 +84,12 @@ class Socket():
                                 self.pinging = False
                                 self.waiting = False
                             else:
-                                self.msg_queue.put(i)  # Put data into the queue for the main thread to process
+                                self.msg_queue.put(i)  # put data into the queue for the main thread to process
             except BlockingIOError:
-                # No data available, continue
+                # no data available, continue
                 pass
             except Exception as e:
-                #print(f"Network error: {e}")
                 self.connected = False
-                #break
 
             # check timeout
             if self.waiting and time.time() - self.waiting_from > MAX_WAIT:
@@ -95,17 +105,23 @@ class Socket():
                 else:
                     self.connect()
 
-            time.sleep(.01)  # Small delay to avoid high CPU usage
+            time.sleep(.01)  # small delay
 
         self.sock.close()       
 
     def peek_last_msg(self):
+        '''
+        Peek last message from message queue
+        '''
         if self.msg_queue.empty():
             return None
         else:
             return self.msg_queue.queue[0]
 
     def get_last_msg(self):
+        '''
+        Dequeue last message from message queue
+        '''
         if self.msg_queue.empty():
             return None
         else:

@@ -2,6 +2,9 @@ import pygame as pg
 
 pg.font.init()
 class BarUtils:
+    '''
+    Top and bottom bar constants + utils
+    '''
     HEIGHT = 20
     FONT = pg.font.SysFont('Consolas', 14)
     PADDING = 5
@@ -14,6 +17,9 @@ class BarUtils:
 
 
 class NameChecker:
+    '''
+    Simple checker if name is valid
+    '''
     MIN_NAME_LEN = 3
     MAX_NAME_LEN = 12
 
@@ -27,6 +33,9 @@ class NameChecker:
         return True
 
 class Col:
+    '''
+    Color constants
+    '''
     PLAYER = (58, 224, 208)
     ENEMY = (219, 55, 99)
     PREVIEW = (253, 255, 122)
@@ -38,6 +47,9 @@ class Col:
     DISCONNECTED = [255,0,0]
 
 class Msg:
+    '''
+    Message types
+    '''
     OK = "OK"
     ERR = "ERR"
     ERR1 = "ERR1"

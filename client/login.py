@@ -18,8 +18,6 @@ class LoginScene(Scene):
                                             manager=self.ui_manager,
                                             container = self.ui_container,
                                             anchors={'center': 'center'})
-        # restrict input characters
-        # self.uname_box.set_allowed_characters('alpha_numeric')
 
         self.err_popup = None
 
