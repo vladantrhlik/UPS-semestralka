@@ -31,7 +31,7 @@ Hra Dots and Boxes je strategická tahová hra pro dva hráče. Herní pole tvo�
 \section{Protokol}
 
 \subsection{Základní popis}
-Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv oddělují znakem '\texttt{|}' a ukončovací znak je '\texttt{\textbackslash n}'. Jména hráčů a názvy her jsou omezena na velká a malá písmena a znak '\texttt{\_}'. Pokud není zpráva ve správném formátu, nebo zadané parametry nedávají v aktuálním kontextu smysl, odpovědí je zpráva \texttt{ERR<n>}, kde \texttt{n} je číslo jedné z chybových zpráv:
+Komunikace mezi klientem a serverem je zajištěna pomocí TCP protokolu. Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv oddělují znakem '\texttt{|}' a ukončovací znak je '\texttt{\textbackslash n}'. Jména hráčů a názvy her jsou omezena na velká a malá písmena a znak '\texttt{\_}'. Pokud není zpráva ve správném formátu, nebo zadané parametry nedávají v aktuálním kontextu smysl, odpovědí je zpráva \texttt{ERR<n>}, kde \texttt{n} je číslo jedné z chybových zpráv:
 \begin{itemize}
 	\item \texttt{1} -- invalid
 	\item \texttt{2} -- name already exists
@@ -151,8 +151,7 @@ Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv od
    \node[state] (q_0) [right=of p_0]  {waiting}; 
    \node[state] (q_1) [right=of q_0] {$P_1$ on turn}; 
    \node[state] (q_2) [right=of q_1] {$P_2$ on turn}; 
-   \node[state] (q_3) [below=of q_1] {$P_1$ wins}; 
-   \node[state] (q_4) [below=of q_2] {$P_2$ wins}; 
+   \node[state] (q_3) [below=of q_1] {game end}; 
    \node[state] (q_5) [below=of q_3] {lobby}; 
     \path[->] 
 		(p_0) edge node {create game \texttt{A}} (q_0)
@@ -163,12 +162,39 @@ Při posílání zpráv mezi klienty a serverem se jednotlivé části zpráv od
 			  edge node {$P_1$ turn} (q_3)
 		(q_2) edge [bend left] node {$P_2$ turn} (q_1)
 			  edge [loop above] node {$P_2$ turn} ()
-			  edge node {$P_2$ turn} (q_4)
-		(q_3) edge node {leave} (q_5)
-		(q_4) edge [bend left] node {leave} (q_5);
+			  edge [bend left] node {$P_2$ turn} (q_3)
+		(q_3) edge node {leave} (q_5);
 	\path[->,dashed]
 		(q_5) edge [bend left] node {} (p_0)
-		(q_5) edge [bend left] node {} (p_1)
+		(q_5) edge [bend left] node {} (p_1);
 
 \end{tikzpicture}
+\section{Popis implementace}
+
+\subsection{Server}
+Server je napsán jazyce C za použití základních knihoven. Je rozdělen do několika modulů:
+\begin{itemize}
+	\item \texttt{game} -- funkce pro vytváření hry, ověřování správnosti tahů apod.
+	\item \texttt{handlers} -- obslužné funkce pro jednotlivé typy zpráv
+	\item \texttt{server} -- funkce pro spuštění serveru a obsluhy klientů
+	\item \texttt{utils} -- užitečné funkce pro odesílání zpráv a ověřování přechodů mezi stavy klientů
+	\item \texttt{main} -- vstupní bod programu
+\end{itemize}
+Všechny struktury jsou definovány ve \texttt{structs.h} -- obsahují strukturu \texttt{Game}, \texttt{Server} a \texttt{Player}, které slouží k uložení dat o jednlivých hráčích a hrách. Kromě toho se zde nachází i typy zpráv, výčty možných stavů a událostí, které jsou využity v přechodovém automatu (v \texttt{utils.c}).
+
+Celý program běži jako jeden proces a k obsluze klientů využívá \texttt{fd\_set}.
+
+Pokud server detekuje zprávy ve špatném formátu, zvedne se čítač nevalidních zpráv u daného hráče. Pokud překročí 10 nevalidních zpráv, je hráč odpojen.
+
+Při přerušení spojení se hráč může připojit zpět do hry po přihlášení pod stejným jménem.
+
+Pro konfiguraci serveru lze použít soubor \texttt{config.txt}, který obsahuje data o maximálních počtech hráčů a her, IP adrese a portu.
+\subsection{Client}
+Client je napsán v jazyce Python za použití základních knihoven, grafické knihovny \texttt{pygame} a GUI knihovny \texttt{pygame\_gui}. Program je rozdělen do scén, mezi kterými se přepíná. Při implemetaci byla snaha se držet MVC architektury, ale ta byla kvůli jednoduchosti většiny scén zachována jen v samotné scéně hry. 
+
+Každá scéna dědí třídu \texttt{Scene}, která obsahuje základní metody na zpracování vstupu od uživatele a správného vykreslení všech komponent. Měnění mezi scénenami zajišťuje jednoduchá třída \texttt{SceneManager}.
+
+Pro komunikaci se serverem je zde třída \texttt{Socket}, která za využitím knihovny \texttt{socket} zajišťuje komunikaci se serverem, frontu přijatých zpráv a metody zajišťující opětovné připojení při přerušení spojení. Tato třída běži v druhém vlákně pro zajištění plynulého chodu uživatelského rozhraní.
+
 \end{document}
+

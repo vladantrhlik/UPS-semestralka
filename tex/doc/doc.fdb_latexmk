@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1735315772.32471 "doc.tex" "doc.pdf" "doc" 1735315772.82573 2
+["pdflatex"] 1735375891.86729 "doc.tex" "doc.pdf" "doc" 1735375892.35487 0
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -152,8 +152,8 @@
   "/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1728832871 5474851 4ed67577533af4c9bcc5e8bed469707c ""
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1728832908 3325953 725bab6d5de9d3850854ef93b55f071b ""
   "/usr/local/texlive/2024/texmf.cnf" 1728832867.72254 455 5b996dcaa0eb4ef14a83b026bc0a008c ""
-  "doc.aux" 1735315772.7617 685 e9417cc12ea9449f46cf9757d038ca83 "pdflatex"
-  "doc.tex" 1735315770.70672 6276 59ea95d939997e73fc4a77fcea09f8ef ""
+  "doc.aux" 1735375892.29287 989 0c4db6a74d357c86331d31fc398a0434 "pdflatex"
+  "doc.tex" 1735375891.73688 8668 8a95a4d2c81a1eece002e80aa6c011bf ""
   (generated)
   "doc.aux"
   "doc.log"
