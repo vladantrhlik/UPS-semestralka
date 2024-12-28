@@ -12,6 +12,7 @@ class LobbyScene(Scene):
         self.fetching = False
         self.connecting = False
 
+        # list of available games
         lobby_rect = pg.Rect(0, -30, 300, 300)
         self.lobby_list = pgui.elements.UISelectionList(relative_rect = lobby_rect, 
                                                         item_list = list(self.lobbies.keys()),
@@ -19,18 +20,21 @@ class LobbyScene(Scene):
                                                         manager = self.ui_manager,
                                                         anchors={'center': 'center'})
 
+        # connect button
         connect_rect = pg.Rect(82.5, 135, 135, 30)
         self.conn_but = pgui.elements.UIButton(relative_rect=connect_rect,
                                             text='Connect', manager=self.ui_manager,
                                             container = self.ui_container,
                                             anchors={'center': 'center'})
 
+        # refresh button
         refresh_rect = pg.Rect(-135, 135, 30, 30)
         self.rfrsh_but = pgui.elements.UIButton(relative_rect=refresh_rect,
                                             text='U', manager=self.ui_manager,
                                             container = self.ui_container,
                                             anchors={'center': 'center'})
 
+        # text input for new game
         game_name_rect = pg.Rect(-52.5, 135, 135, 30)
         self.game_input = pgui.elements.UITextEntryLine(relative_rect=game_name_rect,
                                                         manager=self.ui_manager, container=self.ui_container,
@@ -40,6 +44,9 @@ class LobbyScene(Scene):
         self.fetch()
 
     def fetch(self):
+        '''
+        Update all available games
+        '''
         if self.connecting: return
 
         if not self.socket.send("LOAD\n"):
@@ -77,8 +84,6 @@ class LobbyScene(Scene):
         if self.connecting:
             self.socket.get_last_msg()
             if (res == Msg.OK):
-                #self.sm.set_scene(GameScene(self.user_data))
-                #self.sm.set_scene(SceneType.GAME, self.user_data)
                 return SceneType.GAME
             elif res == Msg.ERR6:
                 self.error(msg="Max game limit exceeded"); 
@@ -97,7 +102,6 @@ class LobbyScene(Scene):
         # connect button press
         if event.type == pgui.UI_BUTTON_PRESSED:
             if event.ui_element == self.conn_but:
-                # TODO: only when game is selected
                 self.connect()
             if event.ui_element == self.rfrsh_but:
                 self.fetch()
@@ -108,6 +112,9 @@ class LobbyScene(Scene):
                 self.connect()
 
     def connect(self):
+        '''
+        Create/Connect to selected game
+        '''
         if self.fetching: return
 
         lobby = self.lobby_list.get_single_selection()

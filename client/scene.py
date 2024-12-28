@@ -3,11 +3,17 @@ import pygame_gui as pgui
 from consts import *
 
 class SceneType:
+    '''
+    Types of scenes
+    '''
     LOBBY = 0
     LOGIN = 1
     GAME = 2
 
 class Scene:
+    '''
+    Basic scene class inherited by all scenes
+    '''
     def __init__(self, user_data):
         self.user_data = user_data
         self.socket = user_data["socket"]
@@ -18,11 +24,17 @@ class Scene:
         self.next_scene: Scene = self
 
     def update(self, delta_time) -> int:
+        '''
+        Update Scene
+        '''
         self.ui_manager.update(delta_time)
         self.ui_container.set_dimensions(pg.display.get_window_size())
         self.ui_manager.set_window_resolution(pg.display.get_window_size())
 
     def process_event(self, event):
+        '''
+        Update UI events
+        '''
         self.ui_manager.process_events(event)
         # error popup close -> enable ui
         if event.type == pgui.UI_WINDOW_CLOSE:
@@ -31,6 +43,9 @@ class Scene:
                 self.err_popup = None
 
     def draw(self, screen):
+        '''
+        Draw scene
+        '''
         self.ui_manager.draw_ui(screen)
         # draw top bar
         w, h = pg.display.get_window_size()
@@ -47,11 +62,17 @@ class Scene:
         screen.blit(login, (w - BarUtils.PADDING - login_rect[0], y_off))
 
     def not_connected_err(self):
+        '''
+        Not connected popup
+        '''
         msg = "Not connected to server"
         self.ui_container.disable()
         self.error(msg=msg, title="Login error")
 
     def error(self, title="Error", msg="Message"):
+        '''
+        Error popup
+        '''
         if self.err_popup != None: return
         self.ui_container.disable()
         popup_rect = pg.Rect(0,0,300, 150)
