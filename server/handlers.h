@@ -3,38 +3,47 @@
 #ifndef HANDLERS
 #define HANDLERS
 
+/**
+ * Handles list message (for debug)
+ */
 int list_handler(Server *s, Player *p);
 
 /**
- * Handles LOGIN|<nick>\n
- *
- * returns: OK, ERR1 (invalid nickname), ERR5 (already in game)
+ * Handles login message from client
+ * Expects LOGIN|<nick>\n
  */
 int login_handler(Server *s, Player *p);
 
 /**
- * Handles CREATE|<game_name>\n
- *
+ * Handles create message from client
+ * Expects CREATE|<game_name>\n
  */
 int create_handler(Server *s, Player *p);
 
 /**
- * Handles JOIN|<game-index>\n
+ * Handles join message from client
+ * Expects JOIN|<game-index>\n
  */
 int join_handler(Server *s, Player *p);
 
 /**
- * Handles TURN|x|y\n
+ * Handles turn message from client
+ * Expects TURN|x|y\n
  */
 int turn_handler(Server *s, Player *p);
 
+/**
+ * Handles leave message from client
+ */
 int leave_handler(Server *s, Player *p);
 
+/**
+ * Handles load message from client
+ */
 int load_handler(Server *s, Player *p);
 
 /**
- * Sync game state -> OK|w|h|sticks|squares\n
- *
+ * Handles sync message from client
  */
 int sync_handler(Server *s, Player *p);
 

@@ -13,7 +13,9 @@
 #define END_DELIM "\n"
 #define DELIMETERS "|\n"
 
-// player states
+/**
+ * Player states
+ */
 #define STATE_COUNT 6
 typedef enum {
 	ST_CONNECTED,
@@ -24,28 +26,35 @@ typedef enum {
 	ST_NO_TURN,
 } PState;
 
-// player events
+/**
+ * Player events
+ */
 #define EVENT_COUNT 10
 typedef enum {
 	EV_LOGIN,
 	EV_CREATE,
 	EV_JOIN,
-	EV_GOOD_TURN,
-	EV_BAD_TURN,
+	EV_GOOD_TURN, // turn leads to acquired square
+	EV_BAD_TURN,  // turn doesn't lead to acquired square
 	EV_ON_TURN,
 	EV_NO_TURN,
 	EV_GAME_END,
-	EV_NULL,
+	EV_NULL,	  // invalid
 	EV_LEAVE
 } PEvent;
 
-// server events
+/**
+ * Server events / message types for handle_msg()
+ */
 typedef enum {
 	CONNECT,
 	MSG,
 	DISCONNECT
 } SEvent;
 
+/**
+ * Message types
+ */
 typedef enum {
 	OK = 1,
 	ERR,
@@ -58,14 +67,17 @@ typedef enum {
 	OP_TURN,	// oponent on turn
 	ACQ,		// square acquired
 	OP_ACQ,		// oponent acq square
-	PONG,
+	PONG,		// response to ping
 } MsgType;
 
 
 typedef struct Gaym Game;
 
+/**
+ * Player structure
+ */
 typedef struct {
-	int fd;
+	int fd; 	// file descriptor
 	char name[MAX_NAME_LEN + 1];
 	int index;
 	int invalid_msg_count;
@@ -73,17 +85,23 @@ typedef struct {
 	Game *game;
 } Player;
 
+/**
+ * Game structure
+ */
 typedef struct Gaym {
-	Player *p0, *p1;
+	Player *p0, *p1;   // players who are playing the game
 	int active_players;
 	char name[MAX_NAME_LEN + 1];
-	int on_turn;
-	int finished;
+	int on_turn;	   // who is on turn (0 / 1)
+	int finished;	   // game finished?
 	int width, height; // number of squares
-	int **sticks;
-	int **squares;
+	int **sticks;	   // stick / connections data
+	int **squares;	   // square data
 } Game;
 
+/**
+ * Server structure
+ */
 typedef struct {
 	int server_socket;
 	int len_addr;
