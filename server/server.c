@@ -68,7 +68,7 @@ int server_create(Server *s, char *config_file) {
 		printf("Listen - ER\n");
 	}
 
-	// vyprazdnime sadu deskriptoru a vlozime server socket
+	// setup fd set
 	FD_ZERO( &s->client_socks );
 	FD_SET( s->server_socket, &s->client_socks );
 
@@ -180,32 +180,26 @@ int server_handle(Server *s) {
 	int msg_len;
 
 	s->tests = s->client_socks;
-	// sada deskriptoru je po kazdem volani select prepsana sadou deskriptoru kde se neco delo
 	int return_value = select( FD_SETSIZE, &s->tests, ( fd_set *)0, ( fd_set *)0, ( struct timeval *)0 );
 	if (return_value < 0) {
 		printf("Select - ERR\n");
 		return -1;
 	}
 
-	// vynechavame stdin, stdout, stderr
 	for(int fd = 3; fd < FD_SETSIZE; fd++ ){
-		// je dany socket v sade fd ze kterych lze cist ?
 		if( FD_ISSET( fd, &s->tests ) ){
-		// je to server socket ? prijmeme nove spojeni
+			// server socket -> new connection
 			if (fd == s->server_socket){
 				int client_socket = accept(s->server_socket, (struct sockaddr *) &s->peer_addr, (socklen_t*) &s->len_addr);
 				if (client_socket >= 0) {
 					FD_SET( client_socket, &s->client_socks );
-					//printf("Pripojen novy klient a pridan do sady socketu\n");
 					handle_msg(s, CONNECT, client_socket, NULL);
 				} else {
 					printf("Accept - ERR\n");
 				}
 			}
-			// je to klientsky socket ? prijmem data
+			// client socket -> receive data
 			else {
-				// pocet bajtu co je pripraveno ke cteni
-
 				ioctl( fd, FIONREAD, &msg_len );
 				if (msg_len > BUFFER_SIZE) {
 					printf("Message is too long.\n");
@@ -213,19 +207,16 @@ int server_handle(Server *s) {
 					if (invalid_msg(s, p)) handle_msg(s, DISCONNECT, fd, NULL);
 					return -1;
 				}
-				// mame co cist
+				// read message
 				if (msg_len > 0){
 					memset(buffer, '\0', 8);
 					recv(fd, &buffer, msg_len, 0);
 					handle_msg(s, MSG, fd, buffer);
-					//printf("[%d]: %s\n", fd, buffer);
 				}
-				// na socketu se stalo neco spatneho
 				else {
 					close(fd);
 					FD_CLR( fd, &s->client_socks );
 					handle_msg(s, DISCONNECT, fd, buffer);
-					//printf("Klient se odpojil a byl odebran ze sady socketu\n");
 				}
 			}
 		}

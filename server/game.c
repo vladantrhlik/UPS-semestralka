@@ -13,11 +13,16 @@ int is_turn_valid(Game *g, int x, int y) {
 	return 1;
 }
 
+/**
+ * @return number of sticks around square at [x, y]
+ */
 int count_square(Game *g, int x, int y) {
+	// sanity check
 	if (!g || x < 0 || x >= g->width || y < 0 || y>= g->height) return 0;
 
 	int top_y = y * 2;
 	int left_x = x;
+	// sum surrounding sticks
 	int sum = (g->sticks[top_y][left_x] > -1) + (g->sticks[top_y+1][left_x] > -1) +
 			  (g->sticks[top_y+1][left_x+1] > -1) + (g->sticks[top_y+2][left_x] > -1);
 	return sum;
@@ -30,6 +35,7 @@ int is_game_finished(Game *g) {
 		for (int x = 0; x < g->width; x++) {
 			switch (g->squares[y][x]) {
 				case -1:
+					// return -1 if not all sqaures acquired
 					return -1;
 					break;
 				case 0:
