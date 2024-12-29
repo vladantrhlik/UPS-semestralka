@@ -7,10 +7,6 @@
 #include <sys/ioctl.h>
 
 #include "server.h"
-#include "structs.h"
-#include "handlers.h"
-#include "utils.h"
-
 
 int main(int argc, char *argv[]) {
 	Server s;
