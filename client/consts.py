@@ -38,12 +38,13 @@ class Col:
     '''
     PLAYER = (58, 224, 208)
     ENEMY = (219, 55, 99)
-    PREVIEW = (253, 255, 122)
-    BACKGROUND = [232]*3
+    BACKGROUND = [255]*3
     DOT = (0,0,0)
     BAR = [27]*3
     FONT = [255]*3
-    CONNECTED = [70, 240, 115]
+    # CONNECTED = [70, 240, 115]
+    CONNECTED = [255, 252, 92]
+    PREVIEW = CONNECTED #(253, 255, 122)
     DISCONNECTED = [255,0,0]
 
 class Msg:
