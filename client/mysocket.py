@@ -6,7 +6,7 @@ import pygame as pg
 
 MSGLEN = 64
 MAX_WAIT = 2
-PING_INTERVAL = 1
+PING_INTERVAL = 0.5
 
 class Socket():
     '''
