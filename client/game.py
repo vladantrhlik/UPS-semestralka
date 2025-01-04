@@ -102,6 +102,9 @@ class GameScene(Scene):
                 self.socket.get_last_msg()
                 if res.startswith(Msg.OK):
                     self.leaving = False
+                    self.user_data.in_game = False;
+                    self.user_data.game = None
+                    self.user_data.oponent = None
                     #self.sm.set_scene(LobbyScene(self.user_data))
                     #self.sm.set_scene(SceneType.LOBBY, self.user_data)
                     return SceneType.LOBBY

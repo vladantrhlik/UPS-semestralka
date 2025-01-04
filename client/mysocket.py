@@ -16,12 +16,14 @@ class Socket():
     port: int
 
     def __init__(self, ip: str, port: int):
+        from user import User
         self.msg_queue = queue.Queue()
 
         self.ip = ip
         self.port = port
         self.reconnecting = False
         self.connect()
+        self.user_data: User = None
 
         self.waiting = False
         self.pinging = False
@@ -44,6 +46,12 @@ class Socket():
             self.connected = True
             self.pinging = False
             print("succussfull")
+
+            if self.reconnecting and self.user_data.uname != None:
+                game = self.user_data.game
+                if game == None: game = ""
+                self.send(f"RECONNECT|{self.user_data.uname}|{game}\n")
+
         except:
             print("not successfull")
 
@@ -95,11 +103,13 @@ class Socket():
                 pass
             except Exception as e:
                 self.connected = False
+                self.reconnecting = True
 
             # check timeout
             if self.waiting and time.time() - self.waiting_from > MAX_WAIT:
                 self.msg_queue.put("Timeout")
                 self.connected = False
+                self.reconnecting = True
 
             # ping every X seconds
             if time.time() - self.last_ping > PING_INTERVAL:

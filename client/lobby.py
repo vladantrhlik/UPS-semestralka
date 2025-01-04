@@ -121,10 +121,12 @@ class LobbyScene(Scene):
         new_game = self.game_input.get_text()
 
         if NameChecker.is_name_valid(new_game):
+            self.user_data.game = new_game;
             if not self.socket.send(f"CREATE|{new_game}\n"):
                 self.not_connected_err()
                 return
         elif (lobby != None):
+            self.user_data.game = lobby;
             if not self.socket.send(f"JOIN|{lobby}\n"):
                 self.not_connected_err()
                 return

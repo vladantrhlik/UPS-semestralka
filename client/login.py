@@ -35,6 +35,7 @@ class LoginScene(Scene):
                 self.error(msg="Max player limit exceeded.");
             elif res.startswith(Msg.ERR):
                 print(f"error while login: {res}")
+            self.user_data.uname = None
             self.ui_container.enable()
 
     def process_event(self, event):
