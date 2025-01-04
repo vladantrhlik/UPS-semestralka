@@ -192,7 +192,7 @@ Pro konfiguraci serveru lze použít soubor \texttt{config.txt}, který obsahuje
 \subsection{Client}
 Client je napsán v jazyce Python za použití základních knihoven, grafické knihovny \texttt{pygame} a GUI knihovny \texttt{pygame\_gui}. Program je rozdělen do scén, mezi kterými se přepíná. Při implemetaci byla snaha se držet MVC architektury, ale ta byla kvůli jednoduchosti většiny scén zachována jen v samotné scéně hry. 
 
-Každá scéna dědí třídu \texttt{Scene}, která obsahuje základní metody na zpracování vstupu od uživatele a správného vykreslení všech komponent. Měnění mezi scénenami zajišťuje jednoduchá třída \texttt{SceneManager}.
+Každá scéna dědí třídu \texttt{Scene}, která obsahuje základní metody na zpracování vstupu od uživatele a správného vykreslení všech komponent. Dále obsahuje informační lištu v horní části, která obsahuje login uživatele a stav připojení k serveru. Měnění mezi scénenami zajišťuje jednoduchá třída \texttt{SceneManager}.
 
 Pro komunikaci se serverem je zde třída \texttt{Socket}, která za využitím knihovny \texttt{socket} zajišťuje komunikaci se serverem, frontu přijatých zpráv a metody zajišťující opětovné připojení při přerušení spojení. Tato třída běži v druhém vlákně pro zajištění plynulého chodu uživatelského rozhraní.
 

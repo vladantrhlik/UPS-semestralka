@@ -1,3 +1,4 @@
+#include <time.h>
 #include <sys/select.h>
 #include <netinet/in.h>
 
@@ -5,6 +6,7 @@
 #define STRUCTS
 
 #define BUFFER_SIZE 128
+#define PING_INTERVAL 0.5
 #define MIN_NAME_LEN 3
 #define MAX_NAME_LEN 12
 #define MAX_INVALID_MSG 10
@@ -68,6 +70,7 @@ typedef enum {
 	ACQ,		// square acquired
 	OP_ACQ,		// oponent acq square
 	PONG,		// response to ping
+	PING
 } MsgType;
 
 
@@ -81,6 +84,10 @@ typedef struct {
 	char name[MAX_NAME_LEN + 1];
 	int index;
 	int invalid_msg_count;
+
+	long last_ping;
+	int pinged;
+
 	PState state;
 	Game *game;
 } Player;

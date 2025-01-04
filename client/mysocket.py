@@ -79,10 +79,16 @@ class Socket():
                 if data:
                     for i in data.decode('utf-8').split('\n'):
                         if len(i) > 0:
+                            print(i)
                             self.connected = True
                             if self.pinging and i == "PONG":
+                                # server responded to PING
                                 self.pinging = False
                                 self.waiting = False
+                            elif i == "PING":
+                                # respond to ping
+                                print("Responding to ping")
+                                self.send("PONG\n");
                             else:
                                 self.msg_queue.put(i)  # put data into the queue for the main thread to process
             except BlockingIOError:

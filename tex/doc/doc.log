@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.13)  28 DEC 2024 09:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.13)  3 JAN 2025 12:09
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -504,11 +504,6 @@ File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 [3]
 
 [4]
-Overfull \hbox (40.0813pt too wide) in paragraph at lines 195--196
-\T1/cmr/m/n/10.95 správ-ného vy-kres-lení v²ech kom-po-nent. M¥-n¥ní mezi scé-ne-nami za-ji²-´uje jed-no-du-chá t°ída \T1/cmtt/m/n/10.95 SceneManager\T1/cmr/m/n/10.95 . 
- []
-
-
 
 [5] (./doc.aux)
  ***********
@@ -525,7 +520,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  84i,8n,93p,661b,830s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on doc.pdf (5 pages, 172867 bytes).
+Output written on doc.pdf (5 pages, 172556 bytes).
 PDF statistics:
  73 PDF objects out of 1000 (max. 8388607)
  46 compressed objects within 1 object stream

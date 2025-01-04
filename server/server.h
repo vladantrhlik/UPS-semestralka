@@ -18,6 +18,8 @@ int server_create(Server *s, char *config_file);
  */
 int server_handle(Server *s);
 
+int server_ping(Server *s);
+
 /**
  * Handle message from client
  *

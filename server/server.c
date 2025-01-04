@@ -101,6 +101,8 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			p->state = ST_CONNECTED;
 			p->index = s->player_count;
 			p->invalid_msg_count = 0;
+			p->last_ping = clock() / CLOCKS_PER_SEC;
+			p->pinged = 0;
 			if (!p) {
 				printf("Malloc err\n");
 				return -1;
@@ -131,6 +133,12 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 
 			if (!strcmp(cmd, "PING")) {
 				send_msg(p, PONG, NULL);
+				p->last_ping = clock() / CLOCKS_PER_SEC;
+				break;
+			}
+			if (p->pinged && !strcmp(cmd, "PONG")) {
+				p->pinged = 0;
+				p->last_ping = clock() / CLOCKS_PER_SEC;
 				break;
 			}
 
@@ -218,6 +226,28 @@ int server_handle(Server *s) {
 					FD_CLR( fd, &s->client_socks );
 					handle_msg(s, DISCONNECT, fd, buffer);
 				}
+			}
+		}
+	}
+
+	return 0;
+}
+
+int server_ping(Server *s) {
+	// check if all players are connected (ping)
+	long now = clock() / CLOCKS_PER_SEC;
+
+	for (int i = 0; i < s->player_count; i++) {
+		Player *p = s->players[i];
+		if (p->state != ST_DISCONNECTED) {
+			//printf("checking %d\n", p->fd);
+			if (!p->pinged && now - p->last_ping > PING_INTERVAL) {
+				p->pinged = 1;
+				send_msg(p, PING, NULL);
+			} else if (p->pinged && now - p->last_ping > 2*PING_INTERVAL) {
+				// player probably lost connection
+				printf("Player %d lost connection\n", p->fd);
+				handle_msg(s, DISCONNECT, p->fd, NULL);
 			}
 		}
 	}
