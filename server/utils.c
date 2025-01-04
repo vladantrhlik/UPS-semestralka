@@ -85,7 +85,7 @@ int send_msg(Player *p, MsgType type, char *msg) {
 		sprintf(buffer, "%s\n", typeMessages[type]);
 	}
 
-	printf("to %s: %s\n", p->name, buffer);
+	if (type != PONG) printf("to %s: %s\n", p->name, buffer);
 	send(p->fd, buffer, strlen(buffer), 0);
 	return 0;
 }

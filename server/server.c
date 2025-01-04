@@ -117,9 +117,13 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				printf("Player not found in connected\n");
 				return -1;
 			}
-			printf("\nmsg from %d: %s", fd, msg);
+			static char original_msg[BUFF_LEN];
+			strcpy(original_msg, msg);
 			char *cmd = strtok(msg, DELIMETERS);
 			if (!cmd) break;
+
+			if (strcmp(cmd, "PING")) printf("\nmsg from %d: %sn", fd, original_msg);
+
 
 			for (int i = 0; i < handler_count; i++) {
 				if (!strcmp(cmd, handled_msgs[i])) {
@@ -144,6 +148,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 
 		break;
 		case DISCONNECT:
+			//printf("disconnecting %d\n", fd);
 			p = find_connected_player(s, fd);
 			if (!p) {
 				printf("Player not found in connected\n");
@@ -152,6 +157,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 
 			if (strlen(p->name) == 0) {
 				// remove from players if didn't even logged
+				printf("Removing: %d\n", fd);
 				remove_player(s, p);
 				break;
 			} else {
@@ -237,6 +243,7 @@ int server_ping(Server *s) {
 	// check if all players are connected (ping)
 	long now = clock() / CLOCKS_PER_SEC;
 
+	//printf("%d\n", s->player_count);
 	for (int i = 0; i < s->player_count; i++) {
 		Player *p = s->players[i];
 		if (p->state != ST_DISCONNECTED) {
