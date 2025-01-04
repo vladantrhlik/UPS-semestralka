@@ -74,6 +74,8 @@ int login_handler(Server *s, Player *p) {
 				printf("Reconnecting player\n");
 				s->players[i]->state = ST_LOGGED;
 				s->players[i]->fd = p->fd;
+				s->players[i]->last_ping = clock() / CLOCKS_PER_SEC;
+				s->players[i]->invalid_msg_count = 0;
 
 				// remove player from list (now its players[i])
 				remove_player(s, p);
