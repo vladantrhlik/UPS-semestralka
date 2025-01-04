@@ -111,15 +111,13 @@ class Socket():
                 self.msg_queue.put("Timeout")
                 self.connected = False
                 self.reconnecting = True
+                connect()
 
             # ping every X seconds
             from_last_ping = time.time() - self.last_ping
             if not self.pinging and from_last_ping > PING_INTERVAL:
                 self.pinging = True
                 self.send("PING\n")
-            if self.pinging and from_last_ping > 2*PING_INTERVAL:
-                self.pinging = False
-                self.connect()
 
             time.sleep(.01)  # small delay
 
