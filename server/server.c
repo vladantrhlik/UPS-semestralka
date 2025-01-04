@@ -144,6 +144,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 
 			if (strlen(p->name) == 0) {
 				// remove from players if didn't even logged
+				printf("Removing %d\n", fd);
 				remove_player(s, p);
 				break;
 			} else {

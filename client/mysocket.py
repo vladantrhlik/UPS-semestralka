@@ -7,6 +7,7 @@ import pygame as pg
 MSGLEN = 64
 MAX_WAIT = 2
 PING_INTERVAL = 1
+CONN_INTERVAL = 1
 
 class Socket():
     '''
@@ -26,6 +27,7 @@ class Socket():
         self.pinging = False
         self.last_ping = time.time()
         self.waiting_from = time.time()
+        self.last_conn = -1
         self.connected = True
 
         self.thread_i = threading.Thread(target=self.recv_loop, daemon=True)
@@ -97,13 +99,18 @@ class Socket():
                 self.connected = False
 
             # ping every X seconds
-            if time.time() - self.last_ping > PING_INTERVAL:
+            if not self.pinging and time.time() - self.last_ping > PING_INTERVAL:
                 self.last_ping = time.time()
-                if not self.pinging:
-                    self.pinging = True
-                    self.send("PING\n")
-                else:
-                    self.connect()
+                self.pinging = True
+                self.send("PING\n")
+
+            if self.pinging and time.time() - self.last_ping > PING_INTERVAL:
+                self.last_ping = time.time()
+                self.connected = False
+
+            if not self.connected and time.time() - self.last_conn > CONN_INTERVAL:
+                self.last_conn = time.time()
+                self.connect()
 
             time.sleep(.01)  # small delay
 
