@@ -20,6 +20,7 @@ class Socket():
 
         self.ip = ip
         self.port = port
+        self.reconnecting = False
         self.connect()
 
         self.waiting = False

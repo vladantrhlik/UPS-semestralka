@@ -1,6 +1,7 @@
 import pygame as pg
 import pygame_gui as pgui
 from consts import *
+from user import User
 
 class SceneType:
     '''
@@ -14,9 +15,9 @@ class Scene:
     '''
     Basic scene class inherited by all scenes
     '''
-    def __init__(self, user_data):
+    def __init__(self, user_data: User):
         self.user_data = user_data
-        self.socket = user_data["socket"]
+        self.socket = user_data.socket
         self.ui_manager = pgui.UIManager(pg.display.get_window_size())
         self.ui_container = pgui.core.UIContainer(pg.Rect(0, 0, *pg.display.get_window_size()), manager=self.ui_manager)
         self.sm: SceneManager = None
@@ -58,7 +59,7 @@ class Scene:
         screen.blit(ip, (BarUtils.PADDING, y_off))
         # login info
         uname = "not logged"
-        if "uname" in self.user_data: uname = f"login: {self.user_data['uname']}"
+        if self.user_data.uname != None: uname = f"login: {self.user_data.uname}"
         login, login_rect = BarUtils.get_font_n_rect(uname, Col.FONT)
         screen.blit(login, (w - BarUtils.PADDING - login_rect[0], y_off))
 

@@ -8,6 +8,7 @@ from scene import SceneType
 from game import GameScene
 from mysocket import Socket
 from sys import argv
+from user import User
 
 # read ip of server
 ip = "localhost"
@@ -30,6 +31,8 @@ user_data = {"socket": Socket(ip, 10000),
              "on_turn": False,
              "in_game": False,
              "last_game_win": False}
+
+user_data = User(Socket(ip, 10000))
 sm.set_scene(SceneType.LOGIN, user_data)
 
 # main loop

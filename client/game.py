@@ -4,9 +4,10 @@ from game_data import GameData, Player
 from game_view import GameView
 from consts import Msg, BarUtils
 from scene import Scene, SceneType
+from user import User
 
 class GameScene(Scene):
-    def __init__(self, user_data):
+    def __init__(self, user_data: User):
         super().__init__(user_data)
         self.game_data = GameData(user_data, 3, 3)
         self.game_view = GameView(self.game_data)
@@ -16,8 +17,8 @@ class GameScene(Scene):
         self.leaving = False
 
         self.turn_coords = None
-        self.user_data["on_turn"] = False
-        self.user_data["in_game"] = True
+        self.user_data.on_turn = False
+        self.user_data.in_game = True
     
         self.start_sync()
 
@@ -42,12 +43,12 @@ class GameScene(Scene):
             # player on turn
             if res == Msg.ON_TURN:
                 print("on turn")
-                self.user_data["on_turn"] = True
+                self.user_data.on_turn = True
                 res = self.socket.get_last_msg()
             # oponent on turn
             elif res == Msg.OP_TURN:
                 print("oponent on turn")
-                self.user_data["on_turn"] = False
+                self.user_data.on_turn = False
                 res = self.socket.get_last_msg()
             # square acquirement
             elif res.startswith(Msg.ACQ) or res.startswith(Msg.OP_ACQ):
@@ -66,17 +67,17 @@ class GameScene(Scene):
                 res = self.socket.get_last_msg()
             # oponent joined the game
             elif res.startswith(Msg.OP_JOIN):
-                self.user_data["oponent"] = res.split("|")[1]
+                self.user_data.oponent = res.split("|")[1]
                 res = self.socket.get_last_msg()
             # oponent left the game
             elif res.startswith(Msg.OP_LEAVE):
-                self.user_data["oponent"] += " (left)"
+                self.user_data.oponent += " (left)"
                 res = self.socket.get_last_msg()
             # game end -> win / lose
             elif res in [Msg.WIN, Msg.LOSE]:
-                self.user_data["on_turn"] = False
-                self.user_data["in_game"] = False
-                self.user_data["last_game_win"] = True if res == Msg.WIN else False
+                self.user_data.on_turn = False
+                self.user_data.in_game = False
+                self.user_data.last_game_win = True if res == Msg.WIN else False
                 res = self.socket.get_last_msg()
 
             # handle turning response
@@ -225,12 +226,12 @@ class GameScene(Scene):
 
         coords = self.calc_stick_pos(mouse_pos, tile)
 
-        if self.user_data["on_turn"]:
+        if self.user_data.on_turn:
             self.game_view.preview_coords = coords
         else:
             self.game_view.preview_coords = [-1, -1]
 
-        if event.type == pg.MOUSEBUTTONDOWN and self.user_data["on_turn"]:
+        if event.type == pg.MOUSEBUTTONDOWN and self.user_data.on_turn:
             if not self.socket.send(f"TURN|{coords[0]}|{coords[1]}\n"):
                 self.not_connected_err()
                 return

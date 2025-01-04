@@ -83,9 +83,9 @@ class GameView:
         # bottom bar
         my_bg, other_bg = Col.BAR, Col.BAR
         my_font, other_font = Col.PLAYER, Col.ENEMY
-        is_op = self.game_data.user_data["oponent"] != None
+        is_op = self.game_data.user_data.oponent != None
 
-        if self.game_data.user_data["on_turn"]: 
+        if self.game_data.user_data.on_turn: 
             my_bg = Col.PLAYER
             my_font = Col.FONT
         elif is_op: 
@@ -95,11 +95,11 @@ class GameView:
         pg.draw.rect(screen, my_bg, pg.Rect(0, h - BarUtils.HEIGHT, w / 2, BarUtils.HEIGHT))
         pg.draw.rect(screen, other_bg, pg.Rect(w / 2, h - BarUtils.HEIGHT, w / 2, BarUtils.HEIGHT))
         # nicknames
-        my_nick_txt = self.game_data.user_data["uname"]
-        other_nick_txt = self.game_data.user_data["oponent"] if is_op else ""
-        if not self.game_data.user_data["in_game"]:
-            my_nick_txt += " " + ("(WIN)" if self.game_data.user_data["last_game_win"] else "(LOSE)")
-            other_nick_txt += " " + ("(LOSE)" if self.game_data.user_data["last_game_win"] else "(WIN)")
+        my_nick_txt = self.game_data.user_data.uname
+        other_nick_txt = self.game_data.user_data.oponent if is_op else ""
+        if not self.game_data.user_data.in_game:
+            my_nick_txt += " " + ("(WIN)" if self.game_data.user_data.last_game_win else "(LOSE)")
+            other_nick_txt += " " + ("(LOSE)" if self.game_data.user_data.last_game_win else "(WIN)")
 
         my_nick, my_nick_rect = BarUtils.get_font_n_rect(my_nick_txt, my_font)
         other_nick, other_nick_rect = BarUtils.get_font_n_rect(other_nick_txt if is_op else "", other_font)

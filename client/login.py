@@ -55,7 +55,7 @@ class LoginScene(Scene):
 
         # validate uname (length between 3 and 32, only alpha numeric)
         if NameChecker.is_name_valid(uname):
-            self.user_data["uname"] = uname
+            self.user_data.uname = uname
             if self.socket.send(f"LOGIN|{uname}\n"):
                 self.ui_container.disable()
                 return
