@@ -1,4 +1,4 @@
-#include "server.h"
+/#include "server.h"
 #include "structs.h"
 #include <stdio.h>
 #include <stdlib.h>
