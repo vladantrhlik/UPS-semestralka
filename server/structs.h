@@ -70,7 +70,8 @@ typedef enum {
 	ACQ,		// square acquired
 	OP_ACQ,		// oponent acq square
 	PONG,		// response to ping
-	PING
+	PING,
+	SYNC
 } MsgType;
 
 

@@ -90,12 +90,9 @@ class GameScene(Scene):
                 res = self.socket.get_last_msg()
                 return
             # handle syncing response
-            elif self.syncing:
-                if res.startswith(Msg.OK):
-                    self.syncing = False
-                    self.sync(res)
-                else:
-                    print(f"sync error: {res}")
+            if res.startswith(Msg.SYNC):
+                self.syncing = False
+                self.sync(res)
                 self.socket.get_last_msg()
             # handle leaving response
             elif self.leaving:

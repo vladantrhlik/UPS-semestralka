@@ -506,7 +506,7 @@ int sync_handler(Server *s, Player *p) {
 		}
 	}
 
-	send_msg(p, OK, msgbuff);
+	send_msg(p, SYNC, msgbuff);
 	return 0;
 }
 
@@ -524,11 +524,16 @@ int reconnect_handler(Server *s, Player *p) {
 		return 1;
 	}
 
+	// join game
 	if (join_handler(s, np)) {
 		printf("Reconnecting to game failed\n");
 		p->state = ST_CONNECTED;
 		send_msg(p, ERR, "1");
 		return 1;
 	}
+
+	// sync
+	sync_handler(s, np);
+
 	return 0;
 }

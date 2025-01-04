@@ -69,7 +69,8 @@ char *typeMessages[] = {
 	[ACQ] = "ACQ",
 	[OP_ACQ] = "OP_ACQ",
 	[PONG] = "PONG",
-	[PING] = "PING"
+	[PING] = "PING",
+	[SYNC] = "SYNC"
 };
 
 int send_msg(Player *p, MsgType type, char *msg) {
