@@ -122,7 +122,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			char *cmd = strtok(msg, DELIMETERS);
 			if (!cmd) break;
 
-			if (strcmp(cmd, "PING")) printf("\nmsg from %d: %sn", fd, original_msg);
+			if (strcmp(cmd, "PING")) printf("\nmsg from %d: %s", fd, original_msg);
 
 
 			for (int i = 0; i < handler_count; i++) {

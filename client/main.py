@@ -25,15 +25,7 @@ clock = pg.time.Clock()
 # start game with login screen
 sm = SceneManager()
 
-# default user data
-user_data = {"socket": Socket(ip, 10000),
-             "oponent": None,
-             "on_turn": False,
-             "in_game": False,
-             "last_game_win": False}
-
 user_data = User(Socket(ip, 10000))
-user_data.socket.user_data = user_data
 sm.set_scene(SceneType.LOGIN, user_data)
 
 # main loop
