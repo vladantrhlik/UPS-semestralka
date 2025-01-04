@@ -6,7 +6,7 @@
 #define STRUCTS
 
 #define BUFFER_SIZE 128
-#define PING_INTERVAL 1
+#define PING_INTERVAL 0.1
 #define MIN_NAME_LEN 3
 #define MAX_NAME_LEN 12
 #define MAX_INVALID_MSG 10

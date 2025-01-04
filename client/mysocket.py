@@ -93,6 +93,7 @@ class Socket():
                                 # server responded to PING
                                 self.pinging = False
                                 self.waiting = False
+                                self.last_ping = time.time()
                             elif i == "PING":
                                 # respond to ping
                                 self.send("PONG\n");
@@ -112,13 +113,13 @@ class Socket():
                 self.reconnecting = True
 
             # ping every X seconds
-            if time.time() - self.last_ping > PING_INTERVAL:
-                self.last_ping = time.time()
-                if not self.pinging:
-                    self.pinging = True
-                    self.send("PING\n")
-                else:
-                    self.connect()
+            from_last_ping = time.time() - self.last_ping
+            if not self.pinging and from_last_ping > PING_INTERVAL:
+                self.pinging = True
+                self.send("PING\n")
+            if self.pinging and from_last_ping > 2*PING_INTERVAL:
+                self.pinging = False
+                self.connect()
 
             time.sleep(.01)  # small delay
 

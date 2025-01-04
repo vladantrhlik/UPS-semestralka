@@ -1,5 +1,6 @@
 #include "server.h"
 #include "structs.h"
+#include <bits/types/struct_timeval.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -167,6 +168,9 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				s->logged_players--;
 			}
 
+			close(fd);
+			FD_CLR(fd, &s->client_socks );
+
 			// remove game if player was waiting in the game
 			Game *g = p->game;
 			if (g) {
@@ -194,7 +198,15 @@ int server_handle(Server *s) {
 	int msg_len;
 
 	s->tests = s->client_socks;
-	int return_value = select( FD_SETSIZE, &s->tests, ( fd_set *)0, ( fd_set *)0, ( struct timeval *)0 );
+
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec	= 1000;
+
+	int return_value = select( FD_SETSIZE, &s->tests, ( fd_set *)0, ( fd_set *)0, &timeout );
+
+	server_ping(s);
+
 	if (return_value < 0) {
 		printf("Select - ERR\n");
 		return -1;
@@ -227,11 +239,13 @@ int server_handle(Server *s) {
 					recv(fd, &buffer, msg_len, 0);
 					handle_msg(s, MSG, fd, buffer);
 				}
+				/*
 				else {
 					close(fd);
 					FD_CLR( fd, &s->client_socks );
 					handle_msg(s, DISCONNECT, fd, buffer);
 				}
+				*/
 			}
 		}
 	}
