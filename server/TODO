@@ -1,0 +1,3 @@
+
+create RECONNECT|login|game message
+when client's connection dies
