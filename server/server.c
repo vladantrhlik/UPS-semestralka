@@ -75,8 +75,8 @@ int server_create(Server *s, char *config_file) {
 	return 0;
 }
 
-char *handled_msgs[] = {"LIST", "LOGIN", "CREATE", "JOIN", "TURN", "LEAVE", "LOAD", "SYNC"};
-int (*handlers[])(Server *s, Player *p) = {list_handler, login_handler, create_handler, join_handler, turn_handler, leave_handler, load_handler, sync_handler};
+char *handled_msgs[] = {"LIST", "LOGIN", "CREATE", "JOIN", "TURN", "LEAVE", "LOAD", "SYNC", "RECONNECT"};
+int (*handlers[])(Server *s, Player *p) = {list_handler, login_handler, create_handler, join_handler, turn_handler, leave_handler, load_handler, sync_handler, reconnect_handler};
 int handler_count = sizeof(handled_msgs) / sizeof(char*);
 
 int handle_msg(Server *s, SEvent type, int fd, char *msg) {

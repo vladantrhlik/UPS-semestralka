@@ -40,6 +40,31 @@ int list_handler(Server *s, Player *p) {
 	return 0;
 }
 
+// try reconnecting players if it was ever connected before
+Player *try_reconnect(Server *s, Player *p, char *name) {
+	for (int i = 0; i < s->player_count; i++) {
+		if (!strcmp(s->players[i]->name, name)) {
+			if (s->players[i]->state != ST_DISCONNECTED) {
+				printf("Already connected, rejecting\n");
+				send_msg(p, ERR, "5");
+				return 0;
+			} else {
+				printf("Reconnecting player\n");
+				s->players[i]->state = ST_LOGGED;
+				s->players[i]->fd = p->fd;
+				s->players[i]->last_ping = clock() / CLOCKS_PER_SEC;
+				s->players[i]->invalid_msg_count = 0;
+
+				// remove player from list (now its players[i])
+				remove_player(s, p);
+				send_msg(s->players[i], OK, NULL);
+				return s->players[i];
+			}
+		}
+	}
+	return NULL;
+}
+
 int login_handler(Server *s, Player *p) { 
 	char *name = strtok(NULL, END_DELIM);
 	if (!name) {
@@ -64,26 +89,7 @@ int login_handler(Server *s, Player *p) {
 	//p->state = next;
 	
 	// try reconnecting players if it was ever connected before
-	for (int i = 0; i < s->player_count; i++) {
-		if (!strcmp(s->players[i]->name, name)) {
-			if (s->players[i]->state != ST_DISCONNECTED) {
-				printf("Already connected, rejecting\n");
-				send_msg(p, ERR, "5");
-				return 0;
-			} else {
-				printf("Reconnecting player\n");
-				s->players[i]->state = ST_LOGGED;
-				s->players[i]->fd = p->fd;
-				s->players[i]->last_ping = clock() / CLOCKS_PER_SEC;
-				s->players[i]->invalid_msg_count = 0;
-
-				// remove player from list (now its players[i])
-				remove_player(s, p);
-				send_msg(s->players[i], OK, NULL);
-				return 0;
-			}
-		}
-	}
+	if (try_reconnect(s, p, name)) return 0;
 
 	if (s->logged_players + 1 > s->max_players) {
 		printf("Too many players (%d / %d)\n", s->player_count, s->max_players);
@@ -501,5 +507,28 @@ int sync_handler(Server *s, Player *p) {
 	}
 
 	send_msg(p, OK, msgbuff);
+	return 0;
+}
+
+int reconnect_handler(Server *s, Player *p) {
+	char *name = strtok(NULL, DELIM);
+	//char *game = strtok(NULL, END_DELIM);
+
+	// reconnect
+	Player *np = try_reconnect(s, p, name);
+	if (!np) {
+		// player will go to login scene
+		printf("Reconnecting failed\n");
+		p->state = ST_CONNECTED;
+		send_msg(p, ERR, "1");
+		return 1;
+	}
+
+	if (join_handler(s, np)) {
+		printf("Reconnecting to game failed\n");
+		p->state = ST_CONNECTED;
+		send_msg(p, ERR, "1");
+		return 1;
+	}
 	return 0;
 }
