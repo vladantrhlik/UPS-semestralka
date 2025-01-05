@@ -23,7 +23,6 @@ class Socket():
 
         self.ip = ip
         self.port = port
-        self.connect()
 
         self.waiting = False
         self.pinging = False
@@ -33,6 +32,8 @@ class Socket():
         self.last_conn = -1
         self.connected = True
         self.reconnecting = False
+
+        self.connect()
 
         self.thread_i = threading.Thread(target=self.recv_loop, daemon=True)
         self.thread_i.start()
@@ -51,11 +52,11 @@ class Socket():
             self.last_pong = time.time()
             print("succussfull")
 
-            if self.reconnecting:
+            if self.reconnecting == True:
                 print("reconnecting")
-                # TODO: send reconnect message
 
             self.reconnecting = True
+
         except:
             print("not successfull")
 
