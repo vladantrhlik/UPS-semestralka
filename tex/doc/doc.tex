@@ -45,7 +45,7 @@ Komunikace mezi klientem a serverem je zajištěna pomocí TCP protokolu. Při p
 \subsubsection*{Přihlášení}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{LOGIN|<name>}
-	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
+	\item \textbf{Server:} \texttt{OK / ERR<1/2/6>}
 	\item \texttt{<name>}: přihlašovací jméno hráče
 \end{itemize}
 
@@ -59,14 +59,14 @@ Komunikace mezi klientem a serverem je zajištěna pomocí TCP protokolu. Při p
 \subsubsection*{Vytvoření hry}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{CREATE|<game-name>}
-	\item \textbf{Server:} \texttt{OK / ERR<1/2>}
+	\item \textbf{Server:} \texttt{OK / ERR<1/2/6>}
 	\item \texttt{<game-name>}: název hry
 \end{itemize}
 
 \subsubsection*{Připojení do hry}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{JOIN|<game-name>}
-	\item \textbf{Server:} \texttt{OK|<op-name> / ERR<1/5>}
+	\item \textbf{Server:} \texttt{OK|<op-name> / ERR<1/5/6>}
 	\item \texttt{<game-name>}: název hry, \texttt{<op-name>}: jméno oponenta
 \end{itemize}
 
@@ -99,7 +99,7 @@ Komunikace mezi klientem a serverem je zajištěna pomocí TCP protokolu. Při p
 
 \subsubsection*{Obsazení čtverce}
 \begin{itemize}
-	\item \textbf{Server:} \texttt{(OP\_)ACQ|<X>|<Y>(|<X2>|<Y2>)}
+	\item \textbf{Server:} \texttt{(OP\_)ACQ|<X>|<Y>[|<X2>|<Y2>]}
 	\item \textbf{Client:} \texttt{OK}
 	\item \texttt{<X>}, \texttt{<Y>}, \texttt{<X2>}, \texttt{<Y2>}: pozice čtverce
 	\item \texttt{OP\_ACQ} informuje o obsazení oponentem, \texttt{ACQ} hráčem, který zprávu přijímá.
@@ -120,17 +120,17 @@ Komunikace mezi klientem a serverem je zajištěna pomocí TCP protokolu. Při p
 
 \subsubsection*{Konec hry}
 \begin{itemize}
-	\item \textbf{Server:} \texttt{END|WIN/LOSE}
+	\item \textbf{Server:} \texttt{END|<WIN/LOSE>}
 	\item \textbf{Client:} \texttt{OK}
 \end{itemize}
 
 \subsubsection*{Ping}
 \begin{itemize}
-	\item \textbf{Client:} \texttt{PING}
-	\item \textbf{Server:} \texttt{PONG}
+	\item \textbf{Client:} \texttt{PING}, \texttt{PONG}
+	\item \textbf{Server:} \texttt{PONG}, \texttt{PING}
 \end{itemize}
 
-\subsubsection*{Synchronizace hry}
+\subsubsection*{Synchronizace stavu hry}
 \begin{itemize}
 	\item \textbf{Client:} \texttt{SYNC}
 	\item \textbf{Server:} \texttt{OK|<w>|<h>|<stick-data>|<square-data> / ERR<4>}
@@ -143,7 +143,17 @@ Komunikace mezi klientem a serverem je zajištěna pomocí TCP protokolu. Při p
 	\end{itemize}
 \end{itemize}
 
+\subsubsection*{Připojení po výpadku spojení}
+\begin{itemize}
+	\item \textbf{Client:} \texttt{RECONNECT|<name>|<game-name>}
+	\item \textbf{Server:} \texttt{OK|<scene-code>}
+	\item \texttt{<name>}: jméno hráče (nepovinné), \texttt{<game-name>}: název hry (nepovinné)
+	\item \texttt{<scene-code>}: kód akce pro klienta (0 = login, 1 = lobby, 2 = game)
+	\item Server se na základě údajů \texttt{<name>} a \texttt{<game-name>} rozhodne, zda-li se hráč připojí zpět do hry (2), nebo zůstane v lobby (1). Při neznámém jménu hráče je přesunut na nový login (0). Pokud byl hráč ve hře a připojí se zpět po více než 30 s, je automaticky přesunt do lobby.
+\end{itemize}
+
 \section{Diagram}
+\begin{figure}[H]
 \begin{tikzpicture}[node distance=4cm,on grid,auto] 
 
    \node[state,initial,initial text=$P_1$\ login] (p_0)   {lobby}; 
@@ -169,26 +179,79 @@ Komunikace mezi klientem a serverem je zajištěna pomocí TCP protokolu. Při p
 		(q_5) edge [bend left] node {} (p_1);
 
 \end{tikzpicture}
+\caption{Stavový automat představující cyklus hráče.}
+\label{pic:automat}
+\end{figure}
+
 \section{Popis implementace}
 
 \subsection{Server}
 Server je napsán jazyce C za použití základních knihoven. Je rozdělen do několika modulů:
 \begin{itemize}
-	\item \texttt{game} -- funkce pro vytváření hry, ověřování správnosti tahů apod.
-	\item \texttt{handlers} -- obslužné funkce pro jednotlivé typy zpráv
-	\item \texttt{server} -- funkce pro spuštění serveru a obsluhy klientů
-	\item \texttt{utils} -- užitečné funkce pro odesílání zpráv a ověřování přechodů mezi stavy klientů
 	\item \texttt{main} -- vstupní bod programu
+	\item \texttt{server} -- funkce pro spuštění serveru a obsluhy klientů
+	\item \texttt{handlers} -- obslužné funkce pro jednotlivé typy zpráv
+	\item \texttt{game} -- funkce pro vytváření hry, ověřování správnosti tahů apod.
+	\item \texttt{utils} -- užitečné funkce pro odesílání zpráv a ověřování přechodů mezi stavy klientů
 \end{itemize}
 Všechny struktury jsou definovány ve \texttt{structs.h} -- obsahují strukturu \texttt{Game}, \texttt{Server} a \texttt{Player}, které slouží k uložení dat o jednlivých hráčích a hrách. Kromě toho se zde nachází i typy zpráv, výčty možných stavů a událostí, které jsou využity v přechodovém automatu (v \texttt{utils.c}).
 
-Celý program běži jako jeden proces a k obsluze klientů využívá \texttt{fd\_set}.
+\subsubsection{\texttt{main.c}}
+Jako vstupní bod programu slouží \texttt{main.c}. Na začátku vytváří strukturu \texttt{Server}, která připravena a naplněna daty pomocí funkce \texttt{server\_create()} a v nekonečném cyklu volá \texttt{server\_handle()}.
 
-Pokud server detekuje zprávy ve špatném formátu, zvedne se čítač nevalidních zpráv u daného hráče. Pokud překročí 10 nevalidních zpráv, je hráč odpojen.
+\subsubsection{\texttt{server.c}}
+Tento soubor obsahuje všechny potřebné funkce pro spravování připojení serveru k jednotlivým klientům a správnou manipulaci s daty. Patří mezi ně:
+\begin{itemize}
+	\item \texttt{int server\_create(Server *s, char *config\_file)}
 
-Při přerušení spojení se hráč může připojit zpět do hry po přihlášení pod stejným jménem.
+		Nejprve načte konfigurační soubor se jménem \texttt{config\_file}, který obsahuje IP adresu a port serveru a další hodnoty jako maximální počet připojených hráčů a vytvořených her v jeden moment. Dále vytvoří sever socket a připraví potřebné struktury pro server.
+	\item \texttt{int server\_handle(Server *s)}
 
-Pro konfiguraci serveru lze použít soubor \texttt{config.txt}, který obsahuje data o maximálních počtech hráčů a her, IP adrese a portu.
+		Toto je základní funkce, která běží v \texttt{main.c} v nekonečné smyčce a obstarává komunikaci s klienty na nejnižší úrovni. Pomocí \texttt{select()} přijímá nové klienty a zprávy, které dále předává funkci \texttt{handle\_msg}. Dále také v intervalech posílá \texttt{PING} všem klientům a spravuje tak připojené a odpojené klienty.
+	\item \texttt{int handle\_msg(Server *s, SEvent type, int fd, char *msg)}
+
+		K zpracování zpráv a událostí slouží funkce \texttt{handle\_msg()}. Přijímá 3 různé typy událostí -- \texttt{CONNECT}, \texttt{MSG} a \texttt{DISCONNECT}. 
+
+		Při připojení nového klienta je vytvořena nová struktura \texttt{Player}, která je přidána do pole \texttt{players[]} ve struktuře \texttt{Server}. Naopak při odpojení je z tohoto pole odstraněn, ale to jen v případě, že nebyl přihlášen pomocí \texttt{LOGIN}. Pokud se již hráč přihlásil, zůstává na serveru uložen pro budoucí přihlášení zpět pod stejným jménem.
+
+		Pro zpracování jednotlivých zpráv jsou nadefinované pole, které obsahuje zprávu v podobě řetězce a ukazatel na funkci, která tuto zprávu obsluhuje. Díky tomu stačí zjistit, která z obslužná funkce patří k přijaté zprávě a následně ji zavolat. Zbytek přijaté zprávy je v každé obslužné funkci načítán pomocí \texttt{strtok()}, díky čemuž nemusí přebírat žádné parametry a všechny funkce mají stejný prototyp. Pokud je zpráva ve špatném formátu, zvedne se čítač nevalidních zpráv u daného hráče. Pokud překročí 10 nevalidních zpráv, je hráč odpojen.
+	\item \texttt{int remove\_player(Server *s, Player *p)}
+
+		Tato funkce slouží k odstranění struktury hráče ze serveru a uvolnění z paměti.
+	\item \texttt{int remove\_game(Server *s, Game *g)}
+
+		Tato funkce slouží k odstranění hry ze serveru a uvolnění z paměti.
+\end{itemize}
+
+\subsubsection{\texttt{handlers.c}}
+Při zpracování zpráv všechny obslužné funkce kontrolují, jestli je hráč ve správném stavu stavového automatu z obrázku \ref{pic:automat}. Pokud je zpráva validní, je hráčův stav změněn na jiný dle předchozího stavu a typu události.
+
+Pokud jsou předané argumenty zpráv chybné nebo se hráč nenachází ve správném stavu, je o tom informován chybovou zprávou \texttt{ERR}.
+
+\begin{itemize}
+	\item \texttt{int login\_handler(Server *s, Player *p)}
+
+	Tato funkce slouží k přihlášení hráče na server. Načítá jeho jméno, u kterého ověřuje zda-li obsahuje pouze povolené znaky a jestli už na serveru neexistuje hráč se stejným jménem.
+	\item \texttt{int create\_handler(Server *s, Player *p)}
+
+	Funkce \texttt{int create\_handler()} slouží k vytvoření nové hry. Testuje, jestli název obsahuje pouze povolené znaky a jestli už na serveru neexistuje hra se stejným jménem. V případě úspěšného vytvoření hry je odesílatel zprávy přidán jako první hráč.
+
+	\item \texttt{int join\_handler(Server *s, Player *p)}
+
+	Pro zpracování zprávy k připojení do hry je \texttt{int join\_handler()}. Najde hru, jejíž název se shoduje s předaným názvem a zkontroluje zda-li hra není plná. Pokud vše sedí, hráč je připojen do hry.
+
+	\item \texttt{int turn\_handler(Server *s, Player *p)}
+
+	Tato funkce slouží ke zpracování zprávy o tahu hráče. Kontroluje, jestli je hráč na tahu, jestli je jeho tah v mezích herního pole a také že na zadané pozici už nebyl proveden jeden z předchozích tahů.
+	\item \texttt{int leave\_handler(Server *s, Player *p)}
+	\item \texttt{int load\_handler(Server *s, Player *p)}
+	\item \texttt{int sync\_handler(Server *s, Player *p)}
+	\item \texttt{int reconnect\_handler(Server *s, Player *p)}
+\end{itemize}
+
+\subsubsection{\texttt{game}}
+\subsubsection{\texttt{utils}}
+
 \subsection{Client}
 Client je napsán v jazyce Python za použití základních knihoven, grafické knihovny \texttt{pygame} a GUI knihovny \texttt{pygame\_gui}. Program je rozdělen do scén, mezi kterými se přepíná. Při implemetaci byla snaha se držet MVC architektury, ale ta byla kvůli jednoduchosti většiny scén zachována jen v samotné scéně hry. 
 
