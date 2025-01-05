@@ -1,4 +1,4 @@
-maxPlayers 2
-maxGames 1
+maxPlayers 4
+maxGames 2
 port 10000
 ip 192.168.1.16

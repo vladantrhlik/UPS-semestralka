@@ -34,6 +34,8 @@ class LoginScene(Scene):
                 return SceneType.LOBBY
             elif res == Msg.ERR6:
                 self.error(msg="Max player limit exceeded.");
+            elif res == Msg.ERR5:
+                self.error(msg="Player already exists.");
             elif res.startswith(Msg.ERR):
                 print(f"error while login: {res}")
             self.ui_container.enable()

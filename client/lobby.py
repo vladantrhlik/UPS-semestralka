@@ -12,6 +12,8 @@ class LobbyScene(Scene):
         self.fetching = False
         self.connecting = False
         self.selected_game = None
+        # joining / creating
+        self.joining = False
 
         # list of available games
         lobby_rect = pg.Rect(0, -30, 300, 300)
@@ -89,8 +91,15 @@ class LobbyScene(Scene):
             if (res == Msg.OK):
                 self.user_data.game = self.selected_game
                 return SceneType.GAME
+            elif res == Msg.ERR1:
+                self.error(msg="Invalid game selected."); 
+            elif res == Msg.ERR2:
+                self.error(msg="Game already exists."); 
             elif res == Msg.ERR6:
-                self.error(msg="Max game limit exceeded"); 
+                if self.joining:
+                    self.error(msg="Game is full."); 
+                else:
+                    self.error(msg="Max game limit exceeded."); 
             else:
                 print(f"error while connecting: {res}")
 
@@ -125,11 +134,13 @@ class LobbyScene(Scene):
         new_game = self.game_input.get_text()
 
         if NameChecker.is_name_valid(new_game):
+            self.joining = False
             if not self.socket.send(f"CREATE|{new_game}\n"):
                 self.not_connected_err()
                 return
             self.selected_game = new_game
         elif (lobby != None):
+            self.joining = True
             if not self.socket.send(f"JOIN|{lobby}\n"):
                 self.not_connected_err()
                 return

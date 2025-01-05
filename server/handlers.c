@@ -142,7 +142,7 @@ int create_handler(Server *s, Player *p) {
 		Game *g = s->games[i];
 		if (!strcmp(g->name, name)) {
 			printf("Game already exists\n");
-			send_msg(p, ERR, "1");
+			send_msg(p, ERR, "2");
 			return 0;
 		}
 	}
@@ -225,7 +225,7 @@ int join_handler(Server *s, Player *p) {
 			rejoin = 1;
 		} else {
 			printf("Game is full\n");
-			send_msg(p, ERR, "1");
+			send_msg(p, ERR, "6");
 			return 0;
 		}
 	}
@@ -234,7 +234,7 @@ int join_handler(Server *s, Player *p) {
 	if ((g->p0 == p && !g->p1) ||
 		(g->p1 == p && !g->p0)) {
 		printf("Can't join game you're already in\n");
-		send_msg(p, ERR, "1");
+		send_msg(p, ERR, "5");
 		return 1;
 	}
 
