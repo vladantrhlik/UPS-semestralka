@@ -77,8 +77,8 @@ int server_create(Server *s, char *config_file) {
 	return 0;
 }
 
-char *handled_msgs[] = {"LIST", "LOGIN", "CREATE", "JOIN", "TURN", "LEAVE", "LOAD", "SYNC"};
-int (*handlers[])(Server *s, Player *p) = {list_handler, login_handler, create_handler, join_handler, turn_handler, leave_handler, load_handler, sync_handler};
+char *handled_msgs[] = {"LIST", "LOGIN", "CREATE", "JOIN", "TURN", "LEAVE", "LOAD", "SYNC", "RECONNECT"};
+int (*handlers[])(Server *s, Player *p) = {list_handler, login_handler, create_handler, join_handler, turn_handler, leave_handler, load_handler, sync_handler, reconnect_handler};
 int handler_count = sizeof(handled_msgs) / sizeof(char*);
 
 int handle_msg(Server *s, SEvent type, int fd, char *msg) {
@@ -192,7 +192,7 @@ int server_handle(Server *s) {
 
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 10000;
+	timeout.tv_usec = 10;
 
 	int return_value = select( FD_SETSIZE, &s->tests, ( fd_set *)0, ( fd_set *)0, &timeout);
 	if (return_value < 0) {

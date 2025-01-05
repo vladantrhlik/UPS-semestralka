@@ -47,4 +47,6 @@ int load_handler(Server *s, Player *p);
  */
 int sync_handler(Server *s, Player *p);
 
+int reconnect_handler(Server *s, Player *p);
+
 #endif

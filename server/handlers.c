@@ -41,6 +41,35 @@ int list_handler(Server *s, Player *p) {
 	return 0;
 }
 
+/**
+ * Try reconnecting player with given name 
+ *
+ * @return 0 = OK, 1 = already connected, 2 = not found in previsously connected players
+ */
+int try_reconnect(Server *s, Player **p, char *name) {
+	for (int i = 0; i < s->player_count; i++) {
+		if (!strcmp(s->players[i]->name, name)) {
+			if (s->players[i]->state != ST_DISCONNECTED) {
+				return 1;
+			} else {
+				printf("Reconnecting player\n");
+				s->players[i]->state = ST_LOGGED;
+				s->players[i]->fd = (*p)->fd;
+				s->players[i]->pinged = 0;
+				s->players[i]->last_ping = time(NULL);
+
+				// remove player from list (now its players[i])
+				remove_player(s, *p);
+				send_msg(s->players[i], OK, NULL);
+
+				*p = s->players[i];
+				return 0;
+			}
+		}
+	}
+	return 2;
+}
+
 int login_handler(Server *s, Player *p) { 
 	char *name = strtok(NULL, END_DELIM);
 	if (!name) {
@@ -63,27 +92,18 @@ int login_handler(Server *s, Player *p) {
 		return 1;
 	}
 	//p->state = next;
-	
-	// try reconnecting players if it was ever connected before
-	for (int i = 0; i < s->player_count; i++) {
-		if (!strcmp(s->players[i]->name, name)) {
-			if (s->players[i]->state != ST_DISCONNECTED) {
-				printf("Already connected, rejecting\n");
-				send_msg(p, ERR, "5");
-				return 0;
-			} else {
-				printf("Reconnecting player\n");
-				s->players[i]->state = ST_LOGGED;
-				s->players[i]->fd = p->fd;
-				s->players[i]->pinged = 0;
-				s->players[i]->last_ping = time(NULL);
 
-				// remove player from list (now its players[i])
-				remove_player(s, p);
-				send_msg(s->players[i], OK, NULL);
-				return 0;
-			}
-		}
+	switch (try_reconnect(s, &p, name)) {
+		case 0:
+			// success
+			return 0;
+		case 1:
+			printf("Already connected, rejecting\n");
+			send_msg(p, ERR, "5");
+			return 0;
+		case 2:
+			// not found
+			break;
 	}
 
 	if (s->logged_players + 1 > s->max_players) {
@@ -502,5 +522,54 @@ int sync_handler(Server *s, Player *p) {
 	}
 
 	send_msg(p, OK, msgbuff);
+	return 0;
+}
+
+int reconnect_handler(Server *s, Player *p) {
+	printf("reconnecting\n");
+	char *name = strtok(NULL, DELIM);
+	char *game = strtok(NULL, END_DELIM);
+
+	printf("%s, %s\n", name, game);
+
+	char name_buff[32];
+	sprintf(name_buff, "|%s", name);
+
+	// resulting scene
+	// 0 - login, 1 - lobby, 2 - game
+	int scene = -1;
+	if (!name || strlen(name) == 0) {
+		printf("Reconnecting %d to login\n", p->fd);
+		scene = 0;
+	} else {
+		// match nickname
+		int reconnect = try_reconnect(s, &p, name);
+		if (reconnect > 0) {
+			printf("Reconnecting %s to login, nick not found\n", name);
+			scene = 0;
+		} else {
+			// match game
+			if (game && strlen(game) > 0 && p->game) {
+				Game *g = p->game;
+				if (!strcmp(g->name, game) && (g->p0 == p || g->p1 == p)) {
+					printf("Reconnecting %s to game %s\n", name, game);
+					Player *op = g->p0 == p ? g->p1 : g->p0;
+					// update turn
+					send_msg(p, op->state == ST_ON_TURN ? OP_TURN : ON_TURN, NULL);
+					send_msg(op, OP_JOIN, name_buff);
+					scene = 2;
+				} else {
+					printf("Reconnecting %s to lobby, invalid game\n", name);
+					scene = 1;
+				}
+			} else {
+				printf("Reconnecting %s to lobby, game not selected\n", name);
+				scene = 1;
+			}
+		}
+	}
+
+	sprintf(name_buff, "|%d", scene);
+	send_msg(p, OK, name_buff);
 	return 0;
 }

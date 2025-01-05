@@ -62,7 +62,7 @@ class Socket():
                 game = self.user_data.game
                 if game == None: game = ""
 
-                print("reconnecting")
+                print(f"reconnecting ({uname}, {game})")
                 self.send(f"RECONNECT|{uname}|{game}\n")
 
             self.reconnecting = True
