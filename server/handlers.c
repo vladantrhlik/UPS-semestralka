@@ -529,11 +529,8 @@ int reconnect_handler(Server *s, Player *p) {
 	printf("reconnecting\n");
 	char *name = strtok(NULL, DELIM);
 	char *game = strtok(NULL, END_DELIM);
-
-	printf("%s, %s\n", name, game);
-
-	char name_buff[32];
-	sprintf(name_buff, "|%s", name);
+	Player *op;
+	static char buff[32];
 
 	// resulting scene
 	// 0 - login, 1 - lobby, 2 - game
@@ -553,11 +550,7 @@ int reconnect_handler(Server *s, Player *p) {
 				Game *g = p->game;
 				if (!strcmp(g->name, game) && (g->p0 == p || g->p1 == p)) {
 					printf("Reconnecting %s to game %s\n", name, game);
-					Player *op = g->p0 == p ? g->p1 : g->p0;
-					// update turn
-					p->state = op->state == ST_ON_TURN ? ST_NO_TURN : ST_ON_TURN;
-					send_msg(p, op->state == ST_ON_TURN ? OP_TURN : ON_TURN, NULL);
-					send_msg(op, OP_JOIN, name_buff);
+					op = g->p0 == p ? g->p1 : g->p0;
 					scene = 2;
 				} else {
 					printf("Reconnecting %s to lobby, invalid game\n", name);
@@ -570,12 +563,21 @@ int reconnect_handler(Server *s, Player *p) {
 		}
 	}
 
+	// reconnect answer
+	sprintf(buff, "|%d", scene);
+	send_msg(p, OK, buff);
+
 	switch (scene){
 		case 0: p->state = ST_CONNECTED; break;
 		case 1: p->state = ST_LOGGED; break;
+		case 2:
+			// update turn
+			p->state = op->state == ST_ON_TURN ? ST_NO_TURN : ST_ON_TURN;
+			send_msg(p, op->state == ST_ON_TURN ? OP_TURN : ON_TURN, NULL);
+			sprintf(buff, "|%s", name);
+			send_msg(op, OP_JOIN, buff);
+			break;
 	}
 
-	sprintf(name_buff, "|%d", scene);
-	send_msg(p, OK, name_buff);
 	return 0;
 }

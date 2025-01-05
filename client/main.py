@@ -45,7 +45,6 @@ while running:
     # update current scene
     res = curr_scene.update(delta_time)
     if res != None:
-        print("main: scene change")
         sm.set_scene(res, curr_scene.user_data)
 
     # draw current scene
