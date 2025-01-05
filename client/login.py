@@ -22,7 +22,8 @@ class LoginScene(Scene):
         self.err_popup = None
 
     def update(self, delta_time):
-        super().update(delta_time)
+        res = super().update(delta_time)
+        if res != None: return res
 
         # handle login response
         res = self.socket.peek_last_msg()

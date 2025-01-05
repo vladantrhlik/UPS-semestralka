@@ -57,7 +57,9 @@ class LobbyScene(Scene):
         self.rfrsh_but.disable()
 
     def update(self, delta_time):
-        super().update(delta_time)
+        res = super().update(delta_time)
+        if res != None: return res
+
         # handle fetching response
         res = self.socket.peek_last_msg()
         if res == None: return

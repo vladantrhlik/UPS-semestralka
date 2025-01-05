@@ -34,7 +34,6 @@ class Scene:
 
         # check for reconnect OK msg
         if self.user_data.socket.reconnecting:
-            print("looking for reconnect answer")
             res = self.socket.peek_last_msg()
             if res != None and res.startswith(Msg.OK):
                 print(f"got reconnect answer '{res}'")
@@ -45,9 +44,12 @@ class Scene:
                     self.socket.get_last_msg()
 
                     scenes = [SceneType.LOGIN, SceneType.LOBBY, SceneType.GAME]
+                    print(f"switching to scene {scene}")
                     return scenes[scene]
                 except:
                     pass
+
+        return None
 
     def process_event(self, event):
         '''

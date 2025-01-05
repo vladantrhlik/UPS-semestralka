@@ -33,7 +33,8 @@ class GameScene(Scene):
         self.game_view.draw(screen)
 
     def update(self, delta_time):
-        super().update(delta_time)
+        res = super().update(delta_time)
+        if res != None: return res
 
         # read potential message from msg queue
         res = self.socket.peek_last_msg()
