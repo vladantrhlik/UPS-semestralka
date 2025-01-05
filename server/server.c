@@ -1,5 +1,6 @@
 #include "server.h"
 #include "structs.h"
+#include <bits/types/struct_timeval.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #include "utils.h"
 #include "handlers.h"
@@ -101,6 +103,8 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			p->state = ST_CONNECTED;
 			p->index = s->player_count;
 			p->invalid_msg_count = 0;
+			p->last_ping = time(NULL);
+			p->pinged = 0;
 			if (!p) {
 				printf("Malloc err\n");
 				return -1;
@@ -112,7 +116,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 		case MSG:
 			p = find_connected_player(s, fd);
 			if (!p) {
-				printf("Player not found in connected\n");
+				printf("Player %d not found in connected\n", fd);
 				return -1;
 			}
 			printf("\nmsg from %d: %s", fd, msg);
@@ -181,10 +185,41 @@ int server_handle(Server *s) {
 	int msg_len;
 
 	s->tests = s->client_socks;
-	int return_value = select( FD_SETSIZE, &s->tests, ( fd_set *)0, ( fd_set *)0, ( struct timeval *)0 );
+
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 10000;
+
+	int return_value = select( FD_SETSIZE, &s->tests, ( fd_set *)0, ( fd_set *)0, &timeout);
 	if (return_value < 0) {
 		printf("Select - ERR\n");
 		return -1;
+	}
+
+	// ping all clients
+	long now = time(NULL);
+	for (int i = 0; i < s->player_count; i++) {
+		Player *p = s->players[i];
+		if (p->state == ST_DISCONNECTED) continue;
+		// ping after X seconds of inactivity
+		if (!p->pinged && now - p->last_ping > PING_INTERVAL) {
+			p->pinged = 1;
+			p->last_ping = now;
+			send_msg(p, PING, NULL);
+			printf("Pinging %d\n", p->fd);
+		}
+		// disconnect after X seconds
+		if (p->pinged && now - p->last_ping > PING_TIMEOUT) {
+			printf("Ping timeout (%d)\n", p->fd);
+			handle_msg(s, DISCONNECT, p->fd, NULL);
+			break;
+		}
+		// set active on any message
+		if( FD_ISSET(p->fd, &s->tests) ) {
+			printf("Ping reset %d\n", p->fd);
+			p->pinged = 0;
+			p->last_ping = now;
+		}
 	}
 
 	for(int fd = 3; fd < FD_SETSIZE; fd++ ){

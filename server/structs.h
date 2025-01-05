@@ -13,6 +13,9 @@
 #define END_DELIM "\n"
 #define DELIMETERS "|\n"
 
+#define PING_INTERVAL 2
+#define PING_TIMEOUT 2
+
 /**
  * Player states
  */
@@ -68,6 +71,7 @@ typedef enum {
 	ACQ,		// square acquired
 	OP_ACQ,		// oponent acq square
 	PONG,		// response to ping
+	PING
 } MsgType;
 
 
@@ -83,6 +87,9 @@ typedef struct {
 	int invalid_msg_count;
 	PState state;
 	Game *game;
+
+	long last_ping;
+	int pinged;
 } Player;
 
 /**
