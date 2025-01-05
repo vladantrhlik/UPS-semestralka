@@ -24,6 +24,9 @@ class Socket():
         self.ip = ip
         self.port = port
 
+        from user import User
+        self.user_data: User = None
+
         self.waiting = False
         self.pinging = False
         self.last_ping = time.time()
@@ -53,7 +56,14 @@ class Socket():
             print("succussfull")
 
             if self.reconnecting == True:
+                uname = self.user_data.uname
+                if uname == None: uname = ""
+
+                game = self.user_data.game
+                if game == None: game = ""
+
                 print("reconnecting")
+                self.send(f"RECONNECT|{uname}|{game}")
 
             self.reconnecting = True
 
