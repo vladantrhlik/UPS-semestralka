@@ -7,8 +7,8 @@ import pygame as pg
 
 MSGLEN = 64
 MAX_WAIT = 3
-PING_INTERVAL = 0.5
-MAX_PING_WAIT = 2
+PING_INTERVAL = 1
+MAX_PING_WAIT = 5
 CONN_INTERVAL = 1
 
 class Socket():
@@ -88,7 +88,7 @@ class Socket():
                     for i in data.decode('utf-8').split('\n'):
                         if len(i) > 0:
                             self.connected = True
-                            if self.pinging and i == "PONG":
+                            if i == "PONG":
                                 self.pinging = False
                                 self.waiting = False
                                 self.last_pong = time.time()
@@ -117,7 +117,7 @@ class Socket():
 
             # no response to ping after X seconds
             if self.pinging and time.time() - self.last_pong > MAX_PING_WAIT:
-                print(f"last ping before {time.time() - self.last_ping}")
+                print(f"last pong before {time.time() - self.last_pong}")
                 self.last_pong = time.time()
                 self.connected = False
 
