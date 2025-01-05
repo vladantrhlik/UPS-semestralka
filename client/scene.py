@@ -34,8 +34,10 @@ class Scene:
 
         # check for reconnect OK msg
         if self.user_data.socket.reconnecting:
+            print("looking for reconnect answer")
             res = self.socket.peek_last_msg()
-            if res == Msg.OK:
+            if res != None and res.startswith(Msg.OK):
+                print(f"got reconnect answer '{res}'")
                 try:
                     scene = int(res.split("|")[1])
 
