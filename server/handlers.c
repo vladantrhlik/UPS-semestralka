@@ -526,7 +526,6 @@ int sync_handler(Server *s, Player *p) {
 }
 
 int reconnect_handler(Server *s, Player *p) {
-	printf("reconnecting\n");
 	char *name = strtok(NULL, DELIM);
 	char *game = strtok(NULL, END_DELIM);
 	Player *op;
@@ -545,8 +544,10 @@ int reconnect_handler(Server *s, Player *p) {
 			printf("Reconnecting %s to login, nick not found\n", name);
 			scene = 0;
 		} else {
+			long after = time(NULL) - p->disconnected_at;
+			printf("Reconnecting %s after %ld s\n", name, after); 
 			// match game
-			if (game && strlen(game) > 0 && p->game) {
+			if (game && strlen(game) > 0 && p->game && after < TO_LOBBY_AFTER) {
 				Game *g = p->game;
 				if (!strcmp(g->name, game) && (g->p0 == p || g->p1 == p)) {
 					printf("Reconnecting %s to game %s\n", name, game);
@@ -557,7 +558,8 @@ int reconnect_handler(Server *s, Player *p) {
 					scene = 1;
 				}
 			} else {
-				printf("Reconnecting %s to lobby, game not selected\n", name);
+				if (after < TO_LOBBY_AFTER) printf("Reconnecting %s to lobby, game not selected\n", name);
+				else printf("Reconnecting %s to lobby, no reconnect after %d s\n", name, TO_LOBBY_AFTER);
 				scene = 1;
 			}
 		}

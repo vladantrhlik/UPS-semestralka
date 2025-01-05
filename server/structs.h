@@ -15,6 +15,7 @@
 
 #define PING_INTERVAL 2
 #define PING_TIMEOUT 2
+#define TO_LOBBY_AFTER 30
 
 /**
  * Player states
@@ -89,6 +90,7 @@ typedef struct {
 	Game *game;
 
 	long last_ping;
+	long disconnected_at;
 	int pinged;
 } Player;
 

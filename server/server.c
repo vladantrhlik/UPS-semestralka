@@ -145,6 +145,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				printf("Failed remove player %d, not found in connected\n", fd);
 				return -1;
 			}
+			p->disconnected_at = time(NULL);
 
 			close(fd);
 			FD_CLR( fd, &s->client_socks );
