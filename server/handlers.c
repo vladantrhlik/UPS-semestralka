@@ -555,6 +555,7 @@ int reconnect_handler(Server *s, Player *p) {
 					printf("Reconnecting %s to game %s\n", name, game);
 					Player *op = g->p0 == p ? g->p1 : g->p0;
 					// update turn
+					p->state = op->state == ST_ON_TURN ? ST_NO_TURN : ST_ON_TURN;
 					send_msg(p, op->state == ST_ON_TURN ? OP_TURN : ON_TURN, NULL);
 					send_msg(op, OP_JOIN, name_buff);
 					scene = 2;
@@ -567,6 +568,11 @@ int reconnect_handler(Server *s, Player *p) {
 				scene = 1;
 			}
 		}
+	}
+
+	switch (scene){
+		case 0: p->state = ST_CONNECTED; break;
+		case 1: p->state = ST_LOGGED; break;
 	}
 
 	sprintf(name_buff, "|%d", scene);

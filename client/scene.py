@@ -32,6 +32,21 @@ class Scene:
         self.ui_container.set_dimensions(pg.display.get_window_size())
         self.ui_manager.set_window_resolution(pg.display.get_window_size())
 
+        # check for reconnect OK msg
+        if self.user_data.socket.reconnecting:
+            res = self.socket.peek_last_msg()
+            if res == Msg.OK:
+                try:
+                    scene = int(res.split("|")[1])
+
+                    self.user_data.socket.reconnecting = False
+                    self.socket.get_last_msg()
+
+                    scenes = [SceneType.LOGIN, SceneType.LOBBY, SceneType.GAME]
+                    return scenes[scene]
+                except:
+                    pass
+
     def process_event(self, event):
         '''
         Update UI events

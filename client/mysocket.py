@@ -34,6 +34,7 @@ class Socket():
         self.waiting_from = time.time()
         self.last_conn = -1
         self.connected = True
+        self.ever_connected = False
         self.reconnecting = False
 
         self.connect()
@@ -55,7 +56,7 @@ class Socket():
             self.last_pong = time.time()
             print("succussfull")
 
-            if self.reconnecting == True:
+            if self.ever_connected == True:
                 uname = self.user_data.uname
                 if uname == None: uname = ""
 
@@ -64,8 +65,9 @@ class Socket():
 
                 print(f"reconnecting ({uname}, {game})")
                 self.send(f"RECONNECT|{uname}|{game}\n")
+                self.reconnecting = True
 
-            self.reconnecting = True
+            self.ever_connected = True
 
         except:
             print("not successfull")
