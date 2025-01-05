@@ -221,7 +221,6 @@ int server_handle(Server *s) {
 		}
 		// set active on any message
 		if( FD_ISSET(p->fd, &s->tests) ) {
-			printf("Ping reset %d\n", p->fd);
 			p->pinged = 0;
 			p->last_ping = now;
 		}

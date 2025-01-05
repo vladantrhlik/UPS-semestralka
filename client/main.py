@@ -23,6 +23,7 @@ else: print(f"Missing port, using '{port}'")
 # init pygame
 pg.init()
 screen = pg.display.set_mode([500, 500], pg.RESIZABLE)
+pg.display.set_caption('Dots & Boxes')
 clock = pg.time.Clock()
 
 # start game with login screen
