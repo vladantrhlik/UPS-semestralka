@@ -1,4 +1,5 @@
 import socket
+import select
 import queue
 import time
 import threading
@@ -76,6 +77,7 @@ class Socket():
         '''
         Main loop for receiving messages (in 2nd thread)
         '''
+
         while True:
             try:
                 # try receiving data from the server
@@ -87,6 +89,7 @@ class Socket():
                             if self.pinging and i == "PONG":
                                 self.pinging = False
                                 self.waiting = False
+                                self.last_ping = time.time()
                             else:
                                 self.msg_queue.put(i)  # put data into the queue for the main thread to process
                             self.pinging = False
@@ -116,6 +119,7 @@ class Socket():
                 print("ping timeout err")
                 self.connected = False
 
+            # reconnect every X seconds if disconnected
             if not self.connected and time.time() - self.last_conn > CONN_INTERVAL:
                 self.last_conn = time.time()
                 self.connect()
