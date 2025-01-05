@@ -447,6 +447,12 @@ int load_handler(Server *s, Player *p) {
 	return 0;
 }
 
+int game_val_to_player_val(Game *g, Player *p, int value) {
+	if (value == -1) return 0;
+	if ((value == 0 && g->p0 == p) || (value == 1 && g->p1 == p)) return 1;
+	return 2;
+}
+
 int sync_handler(Server *s, Player *p) {
 	if (!p->game) {
 		send_msg(p, ERR, "4");
@@ -480,7 +486,7 @@ int sync_handler(Server *s, Player *p) {
 	// stick data
 	for (int y = 0; y < (g->height) * 2 + 1; y++) {
 		for (int x = 0; x < (g->width) + y % 2; x++) {
-			int val = g->sticks[y][x] + 1;
+			int val = game_val_to_player_val(g, p, g->sticks[y][x]);
 			sprintf(buff, "%d", val);
 			strcat(msgbuff, buff);
 		}
@@ -489,7 +495,7 @@ int sync_handler(Server *s, Player *p) {
 	// square data
 	for (int y = 0; y < g->height; y++) {
 		for (int x = 0; x < g->width; x++) {
-			int val = g->squares[y][x] + 1;
+			int val = game_val_to_player_val(g, p, g->squares[y][x]);
 			sprintf(buff, "%d", val);
 			strcat(msgbuff, buff);
 		}
