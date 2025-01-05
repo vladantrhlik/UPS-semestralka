@@ -2,6 +2,7 @@
 #include "structs.h"
 #include "game.h"
 #include "utils.h"
+#include <time.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,6 +75,8 @@ int login_handler(Server *s, Player *p) {
 				printf("Reconnecting player\n");
 				s->players[i]->state = ST_LOGGED;
 				s->players[i]->fd = p->fd;
+				s->players[i]->pinged = 0;
+				s->players[i]->last_ping = time(NULL);
 
 				// remove player from list (now its players[i])
 				remove_player(s, p);

@@ -142,13 +142,17 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 		case DISCONNECT:
 			p = find_connected_player(s, fd);
 			if (!p) {
-				printf("Player not found in connected\n");
+				printf("Failed remove player %d, not found in connected\n", fd);
 				return -1;
 			}
+
+			close(fd);
+			FD_CLR( fd, &s->client_socks );
 
 			if (strlen(p->name) == 0) {
 				// remove from players if didn't even logged
 				printf("Removing %d\n", fd);
+				p->state = ST_DISCONNECTED;
 				remove_player(s, p);
 				break;
 			} else {
@@ -250,8 +254,10 @@ int server_handle(Server *s) {
 					handle_msg(s, MSG, fd, buffer);
 				}
 				else {
+					/*
 					close(fd);
 					FD_CLR( fd, &s->client_socks );
+					*/
 					handle_msg(s, DISCONNECT, fd, buffer);
 				}
 			}
