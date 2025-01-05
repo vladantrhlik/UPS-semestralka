@@ -239,13 +239,11 @@ int server_handle(Server *s) {
 					recv(fd, &buffer, msg_len, 0);
 					handle_msg(s, MSG, fd, buffer);
 				}
-				/*
 				else {
 					close(fd);
 					FD_CLR( fd, &s->client_socks );
 					handle_msg(s, DISCONNECT, fd, buffer);
 				}
-				*/
 			}
 		}
 	}

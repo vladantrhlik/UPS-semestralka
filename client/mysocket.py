@@ -1,12 +1,15 @@
 import socket
+import select
 import queue
 import time
 import threading
 import pygame as pg
 
 MSGLEN = 64
-MAX_WAIT = 2
-PING_INTERVAL = 0.5
+MAX_WAIT = 3
+PING_INTERVAL = 1
+MAX_PING_WAIT = 5
+CONN_INTERVAL = 1
 
 class Socket():
     '''
@@ -16,19 +19,18 @@ class Socket():
     port: int
 
     def __init__(self, ip: str, port: int):
-        from user import User
         self.msg_queue = queue.Queue()
 
         self.ip = ip
         self.port = port
-        self.reconnecting = False
         self.connect()
-        self.user_data: User = None
 
         self.waiting = False
         self.pinging = False
         self.last_ping = time.time()
+        self.last_pong = time.time()
         self.waiting_from = time.time()
+        self.last_conn = -1
         self.connected = True
 
         self.thread_i = threading.Thread(target=self.recv_loop, daemon=True)
@@ -45,13 +47,8 @@ class Socket():
             self.sock.setblocking(False)
             self.connected = True
             self.pinging = False
+            self.last_pong = time.time()
             print("succussfull")
-
-            if self.reconnecting and self.user_data.uname != None:
-                game = self.user_data.game
-                if game == None: game = ""
-                self.send(f"RECONNECT|{self.user_data.uname}|{game}\n")
-
         except:
             print("not successfull")
 
@@ -72,8 +69,9 @@ class Socket():
             if sent == 0:
                 raise RuntimeError("socket connection broken")
             totalsent = totalsent + sent
-            self.waiting = True
-            self.waiting_from = time.time()
+            if msg != "PING\n":
+                self.waiting = True
+                self.waiting_from = time.time()
 
         return True
 
@@ -81,6 +79,7 @@ class Socket():
         '''
         Main loop for receiving messages (in 2nd thread)
         '''
+
         while True:
             try:
                 # try receiving data from the server
@@ -89,35 +88,44 @@ class Socket():
                     for i in data.decode('utf-8').split('\n'):
                         if len(i) > 0:
                             self.connected = True
-                            if self.pinging and i == "PONG":
-                                # server responded to PING
+                            if i == "PONG" or i == "PING":
                                 self.pinging = False
                                 self.waiting = False
-                                self.last_ping = time.time()
-                            elif i == "PING":
-                                # respond to ping
-                                self.send("PONG\n");
+                                self.last_pong = time.time()
+                                if i == "PING": self.send("PONG\n");
                             else:
                                 self.msg_queue.put(i)  # put data into the queue for the main thread to process
+                            self.pinging = False
+                            self.last_pong = time.time()
             except BlockingIOError:
                 # no data available, continue
                 pass
             except Exception as e:
                 self.connected = False
-                self.reconnecting = True
 
             # check timeout
             if self.waiting and time.time() - self.waiting_from > MAX_WAIT:
                 self.msg_queue.put("Timeout")
+                print("timeout err")
                 self.connected = False
-                self.reconnecting = True
-                connect()
 
             # ping every X seconds
-            from_last_ping = time.time() - self.last_ping
-            if not self.pinging and from_last_ping > PING_INTERVAL:
+            if self.connected and time.time() - self.last_pong > PING_INTERVAL and time.time() - self.last_ping > PING_INTERVAL:
+                self.last_ping = time.time()
                 self.pinging = True
+                #print("ping")
                 self.send("PING\n")
+
+            # no response to ping after X seconds
+            if self.pinging and time.time() - self.last_pong > MAX_PING_WAIT:
+                print(f"last pong before {time.time() - self.last_pong}")
+                self.last_pong = time.time()
+                self.connected = False
+
+            # reconnect every X seconds if disconnected
+            if not self.connected and time.time() - self.last_conn > CONN_INTERVAL:
+                self.last_conn = time.time()
+                self.connect()
 
             time.sleep(.01)  # small delay
 
