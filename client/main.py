@@ -10,12 +10,15 @@ from mysocket import Socket
 from sys import argv
 from user import User
 
-# read ip of server
+# read ip and port of server
 ip = "localhost"
-if len(argv) >= 2:
-    ip = argv[1]
-else:
-    print(f"Missing IP, using '{ip}'")
+port = 10000
+
+if len(argv) >= 2: ip = argv[1]
+else: print(f"Missing IP, using '{ip}'")
+
+if len(argv) >= 3: port = int(argv[2])
+else: print(f"Missing port, using '{port}'")
 
 # init pygame
 pg.init()
@@ -26,7 +29,7 @@ clock = pg.time.Clock()
 sm = SceneManager()
 
 # default user data
-user_data = User(Socket(ip, 10000))
+user_data = User(Socket(ip, port))
 sm.set_scene(SceneType.LOGIN, user_data)
 
 # main loop
