@@ -177,8 +177,7 @@ int create_handler(Server *s, Player *p) {
 	}
 	// malloc new game
 	
-	//Game *g = game_create(3, 3, name, p);
-	Game *g = game_create(1, 1, name, p);
+	Game *g = game_create(GAME_SIZE, GAME_SIZE, name, p);
 	if (!g) {
 		printf("Malloc err\n");
 		send_msg(p, ERR, "1");

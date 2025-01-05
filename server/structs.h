@@ -4,6 +4,8 @@
 #ifndef STRUCTS
 #define STRUCTS
 
+#define GAME_SIZE 1
+
 #define BUFFER_SIZE 128
 #define MIN_NAME_LEN 3
 #define MAX_NAME_LEN 12
@@ -16,6 +18,7 @@
 #define PING_INTERVAL 2
 #define PING_TIMEOUT 2
 #define TO_LOBBY_AFTER 30
+
 
 /**
  * Player states
