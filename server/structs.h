@@ -4,7 +4,7 @@
 #ifndef STRUCTS
 #define STRUCTS
 
-#define GAME_SIZE 1
+#define GAME_SIZE 3
 
 #define BUFFER_SIZE 128
 #define MIN_NAME_LEN 3

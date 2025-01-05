@@ -112,6 +112,8 @@ class Socket():
                                 self.pinging = False
                                 self.waiting = False
                                 self.last_pong = time.time()
+                            elif i == "PING":
+                                self.send("PONG\n");
                             else:
                                 self.msg_queue.put(i)  # put data into the queue for the main thread to process
                             self.pinging = False
