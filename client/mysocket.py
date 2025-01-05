@@ -7,6 +7,7 @@ import pygame as pg
 MSGLEN = 64
 MAX_WAIT = 2
 PING_INTERVAL = 1
+MAX_PING_WAIT = 5
 CONN_INTERVAL = 1
 
 class Socket():
@@ -65,8 +66,9 @@ class Socket():
             if sent == 0:
                 raise RuntimeError("socket connection broken")
             totalsent = totalsent + sent
-            self.waiting = True
-            self.waiting_from = time.time()
+            if msg != "PING\n":
+                self.waiting = True
+                self.waiting_from = time.time()
 
         return True
 
@@ -87,15 +89,19 @@ class Socket():
                                 self.waiting = False
                             else:
                                 self.msg_queue.put(i)  # put data into the queue for the main thread to process
+                            self.pinging = False
+                            self.last_ping = time.time()
             except BlockingIOError:
                 # no data available, continue
                 pass
             except Exception as e:
+                print("self.sock.recv error")
                 self.connected = False
 
             # check timeout
             if self.waiting and time.time() - self.waiting_from > MAX_WAIT:
                 self.msg_queue.put("Timeout")
+                print("timeout err")
                 self.connected = False
 
             # ping every X seconds
@@ -104,8 +110,10 @@ class Socket():
                 self.pinging = True
                 self.send("PING\n")
 
-            if self.pinging and time.time() - self.last_ping > PING_INTERVAL:
+            if self.pinging and time.time() - self.last_ping > MAX_PING_WAIT:
+                print(f"last ping before {time.time() - self.last_ping}")
                 self.last_ping = time.time()
+                print("ping timeout err")
                 self.connected = False
 
             if not self.connected and time.time() - self.last_conn > CONN_INTERVAL:
