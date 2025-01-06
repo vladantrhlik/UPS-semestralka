@@ -1,0 +1,8 @@
+Kontrola:
+
+important:
+Kontrola nevalidních zpráv -- pokud se neshoduje s protokolem, okamžitě kick (server i client)
+
+optional:
+Bind ERR - ukončit server
+validovat porty a IP adresy
