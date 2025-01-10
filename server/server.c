@@ -27,7 +27,10 @@ int server_create(Server *s, char *config_file) {
 		char *key = strtok(buffer, " ");
 		char *value = strtok(NULL, "\n");
 		if (!strcmp(key, "port")) {
-			port = atoi(value);
+			int new_port = atoi(value);
+			if (new_port < 0 || new_port > 2<<15) {
+				printf("Invalid port, using %d\n", port);
+			} else port = new_port;
 		} else if (!strcmp(key, "ip")) {
 			ip = value;
 		} else if (!strcmp(key, "maxPlayers")) {

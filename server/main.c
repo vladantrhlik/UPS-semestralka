@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 	Server s;
 	memset(&s, 0, sizeof(Server));
 
-	server_create(&s, "config.txt");
+	if (server_create(&s, "config.txt")) return 1;
 	for (;;) server_handle(&s);
 
 	return 0;
