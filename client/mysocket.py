@@ -4,6 +4,7 @@ import queue
 import time
 import threading
 import pygame as pg
+from consts import Msg
 
 MSGLEN = 64
 MAX_WAIT = 3
@@ -72,6 +73,11 @@ class Socket():
         except:
             print("not successfull")
 
+    def disconnect(self):
+        # self.sock.close()
+        self.sock.shutdown(socket.SHUT_RDWR)
+        self.connected = False
+
     def send(self, msg) -> bool:
         '''
         Send message to server
@@ -108,6 +114,17 @@ class Socket():
                     for i in data.decode('utf-8').split('\n'):
                         if len(i) > 0:
                             self.connected = True
+                            # validate
+                            valid = False
+                            for t in Msg.types():
+                                if i.startswith(t): 
+                                    valid = True
+
+                            if not valid:
+                                print("Invalid message")
+                                self.disconnect()
+                                break
+                                
                             if i == "PONG":
                                 self.pinging = False
                                 self.waiting = False

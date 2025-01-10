@@ -60,6 +60,8 @@ class Msg:
     ERR5 = "ERR5"
     ERR6 = "ERR6"
     TURN = "TURN"
+    PING = "PING"
+    PONG = "PONG"
     ON_TURN = "ON_TURN"
     OP_TURN = "OP_TURN"
     OP_LEAVE = "OP_LEAVE"
@@ -69,6 +71,7 @@ class Msg:
     SYNC = "SYNC"
     WIN = "WIN"
     LOSE = "LOSE"
+    END = "END"
 
     msgs = {
         OK: "OK",
@@ -78,6 +81,9 @@ class Msg:
         ERR4: "Not in game",
         ERR5: "Already in game",
     }
+
+    def types():   
+        return [i for i in Msg.__dict__.keys() if i.isupper()]
     
     def txt(msg: str) -> str:
         if msg in Msg.msgs.keys():

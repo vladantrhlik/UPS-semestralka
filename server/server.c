@@ -83,6 +83,7 @@ int handler_count = sizeof(handled_msgs) / sizeof(char*);
 
 int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 	Player *p;
+	int handled;
 
 	switch (type) {
 		case CONNECT:
@@ -114,6 +115,7 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 			s->player_count++;
 		break;
 		case MSG:
+			handled = 0;
 			p = find_connected_player(s, fd);
 			if (!p) {
 				printf("Player %d not found in connected\n", fd);
@@ -129,15 +131,22 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 						printf("Invalid message.\n");
 						if (invalid_msg(s, p)) handle_msg(s, DISCONNECT, fd, NULL);
 					}
+					handled = 1;
 					break;
 				}
 			}
 
 			if (!strcmp(cmd, "PING")) {
 				send_msg(p, PONG, NULL);
+				handled = 1;
 				break;
 			}
 
+			// msg not recognized -> instant disconnect
+			if (!handled) {
+				printf("Invalid message.\n");
+				handle_msg(s, DISCONNECT, fd, NULL);
+			}
 		break;
 		case DISCONNECT:
 			p = find_connected_player(s, fd);
