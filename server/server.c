@@ -143,6 +143,9 @@ int handle_msg(Server *s, SEvent type, int fd, char *msg) {
 				send_msg(p, PONG, NULL);
 				handled = 1;
 				break;
+			} else if (!strcmp(cmd, "PONG")) {
+				handled = 1;
+				break;
 			}
 
 			// msg not recognized -> instant disconnect
@@ -205,7 +208,7 @@ int server_handle(Server *s) {
 
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 10;
+	timeout.tv_usec = 1000;
 
 	int return_value = select( FD_SETSIZE, &s->tests, ( fd_set *)0, ( fd_set *)0, &timeout);
 	if (return_value < 0) {

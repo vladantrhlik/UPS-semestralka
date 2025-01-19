@@ -6,7 +6,7 @@ import threading
 import pygame as pg
 from consts import Msg
 
-MSGLEN = 64
+MSGLEN = 256
 MAX_WAIT = 3
 PING_INTERVAL = 1
 MAX_PING_WAIT = 5
@@ -112,6 +112,7 @@ class Socket():
                 data = self.sock.recv(1024)
                 if data:
                     for i in data.decode('utf-8').split('\n'):
+                        print(len(i), i)
                         if len(i) > 0:
                             self.connected = True
                             # validate
