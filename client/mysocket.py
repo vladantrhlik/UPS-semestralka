@@ -112,7 +112,6 @@ class Socket():
                 data = self.sock.recv(1024)
                 if data:
                     for i in data.decode('utf-8').split('\n'):
-                        print(len(i), i)
                         if len(i) > 0:
                             self.connected = True
                             # validate
