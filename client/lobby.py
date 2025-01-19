@@ -12,6 +12,7 @@ class LobbyScene(Scene):
         self.fetching = False
         self.connecting = False
         self.selected_game = None
+        ud.oponent = None
         # joining / creating
         self.joining = False
 
