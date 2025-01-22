@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.13)  22 JAN 2025 00:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.13)  22 JAN 2025 19:30
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -520,14 +520,14 @@ L3 programming layer <2024-09-10>
  ) 
 Here is how much of TeX's memory you used:
  16952 strings out of 473579
- 341763 string characters out of 5728233
- 737318 words of memory out of 5000000
+ 341764 string characters out of 5728233
+ 737362 words of memory out of 5000000
  39548 multiletter control sequences out of 15000+600000
  572476 words of font info for 73 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,10n,93p,661b,926s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,10n,93p,754b,926s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on doc.pdf (6 pages, 191593 bytes).
+Output written on doc.pdf (6 pages, 199908 bytes).
 PDF statistics:
  81 PDF objects out of 1000 (max. 8388607)
  51 compressed objects within 1 object stream

@@ -18,7 +18,7 @@
 
 \author{Vladan Trhlík}
 \title{%
-	Semestrální práce z KIV/UPS \\
+	Dokumentace s semestrální práci z KIV/UPS \\
 	\large Dots and Boxes  \\
 }
 
@@ -229,9 +229,9 @@ Pro komunikaci se serverem je zde třída \texttt{Socket}, která za využitím 
 \subsection{Server}
 Pro sestavení serveru je potřeba překladač \texttt{gcc} a nástroj k sestavení \texttt{make}. Samotný překlad je zahájen příkazen \texttt{make} v adresáři obsahující soubor \texttt{Makefile}. Po úspěšném dokončení by měl vzniknout spustitelný soubor \texttt{server}.
 
-Pro nastavení serveru lze využít konfigurační soubor \texttt{config.txt}, který obsahuje 4 předdefinované proměnné a jejich hodnoty (odděleny mezerou, každá na jeden řádek):
+Pro nastavení serveru lze využít konfigurační soubor \texttt{config.txt}, který obsahuje 4 předdefinované proměnné a jejich hodnoty (odděleny mezerou, každá na jeden řádek) ilustrovány v tabulce \ref{tab:conf}.
 
-\begin{table}[H]
+\begin{table}
 	\begin{center}
 		\begin{tabular}[c]{l|l|l}
 			proměnná & popis & příklad \\ \hline
@@ -242,19 +242,26 @@ Pro nastavení serveru lze využít konfigurační soubor \texttt{config.txt}, k
 		\end{tabular}
 	\end{center}
 	\caption{Proměnné konfiguračního souboru.}
+	\label{tab:conf}
 \end{table}
 
 \subsection{Klient}
-Pro spuštění klienta je potřeba mít nainstalovaný \texttt{Python} a knihovny \texttt{pygame} a \texttt{pygame\_gui}. Klient ma při spuštění dva nepovinné parametry pro nastavení ip adresy a portu serveru, a spustí se takto:
+Pro spuštění klienta je potřeba mít nainstalovaný \texttt{Python} a knihovny \texttt{pygame} a \texttt{pygame\_gui}. Klient má při spuštění dva nepovinné parametry pro nastavení ip adresy a portu serveru, a spustí se takto:
 $$ \texttt{python main.py [ip] [port]}$$
 Pokud nejsou parametry zadány, jsou využity výchozí hodnoty (port = 10000, ip = localhost).
+
+Po spuštění se hráč přihlásí pomocí unikátního uživatelského jména a kliknutím na tlačítko '\texttt{Login}'. Po úspěšném přihlášením se dostane do lobby, ve kterém může vytvořit novou hru nebo se může připojit do existující hry s jedním hráčem. Pro aktualizaci dostupných her je zde tlačítko '\texttt{U}'.
+
+Po připojení do hry se hráči střídají v tazích. Na dolní liště jsou zobrazena jména hráčů a jejich skóre. Pokud je hráč na tahu, je jeho jméno podbarveno barevně. Když jsou všechny čtverce obsazené, na dolní liště se zobrazí výsledky (WIN/LOSE) a hráči se mohou vrátit zpět do lobby tlačítkem '\texttt{Leave}'.
+
+Pokud se v průběhu hry hráč odpojí, může se připojit zpět do hry, ale jen v tom případě, že se přihlásí pod stejným uživatelským jménem. Při výpadku spojení se klient automaticky snaží o připojení zpět k serveru.
 
 \section{Závěr}
 S výsledkem semestrální práce jsem velmi spokojen. Tato práce byla mou první zkušeností s tvorbou programu využívajícího síťovou komunikaci, což mi umožnilo naučit se řadu nových věcí a získat cenné praktické zkušenosti.
 
 Pro vývoj serveru jsem zvolil programovací jazyk \texttt{C}, protože mě tento jazyk baví a cítím se v něm velmi komfortně. S implementací serveru jsem spokojen, protože je navržen tak, aby byl snadno rozšiřitelný a~dokázal obsloužit až desítky klientů současně (větší zátěž nebyla testována). Jedním z možných zlepšení by mohl být podrobnější výpis stavu serveru, který by v přehledné tabulce zobrazoval informace o~připojených hráčích a probíhajících hrách.
 
-Pro klienta jsem zvolil \texttt{Python}, díky jeho jednoduchosti, která usnadňuje rychlé prototypování, a také díky svým předchozím zkušenostem s knihovnou \texttt{pygame}. Aplikace klienta je navržena tak, aby poskytovala veškerou potřebnou funkcionalitu v co nejjednodušším a přehledném rozhraní. K dispozici je lišta, která vždy zobrazuje informace o připojení k serveru a jménu uživatele. Možným vylepšením by bylo zlepšení uživatelského rozhraní v lobby, kde by bylo vhodné lépe odlišit možnosti připojení k~existující hře od vytvoření nové.
+Pro klienta jsem zvolil \texttt{Python}, díky jeho jednoduchosti, která usnadňuje rychlé prototypování, a také díky svým předchozím zkušenostem s knihovnou \texttt{pygame}. Aplikace klienta je navržena tak, aby poskytovala veškerou potřebnou funkcionalitu v co nejjednodušším a přehledném rozhraní. K dispozici je lišta, která vždy zobrazuje informace o připojení k serveru a jménu uživatele. Možným vylepšením by bylo zlepšení uživatelského rozhraní v lobby, kde by bylo vhodné lépe odlišit možnosti připojení k~existující hře od vytvoření nové. Dále by bylo dobré doplnit informaci o počtu hráčů v jednotlivých hrách, do kterých se může klient připojit.
 
 \end{document}
 
